@@ -682,13 +682,13 @@
     </div>
 
     <div class="config-box">
-      <h3>Cloudflare Worker</h3>
+      <h3>Anthropic API Key</h3>
       <div class="form-group">
-        <label class="form-label">URL do Worker</label>
-        <input type="text" id="input-worker-url" placeholder="https://fencing-coach.SEU-UTILIZADOR.workers.dev">
+        <label class="form-label">API Key <span>(console.anthropic.com → API Keys)</span></label>
+        <input type="password" id="input-api-key" placeholder="sk-ant-...">
       </div>
-      <button class="btn btn-sm" onclick="guardarConfig()">Guardar URL</button>
-      <p class="config-status" id="config-status-worker">— Não configurado</p>
+      <button class="btn btn-sm" onclick="guardarApiKey()">Guardar key</button>
+      <p class="config-status" id="config-status-apikey">— Não configurado</p>
     </div>
 
     <button class="btn btn-lime" id="btn-gerar-plano" onclick="gerarPlano()" disabled>Gerar plano de treino</button>
@@ -724,7 +724,7 @@
 let condicaoSeleccionada = 0;
 let eCompeticao = false;
 let periodoActual = 'semana';
-let WORKER_URL = localStorage.getItem('epee_worker_url') || '';
+let ANTHROPIC_KEY = localStorage.getItem('epee_anthropic_key') || '';
 let SUPABASE_URL = localStorage.getItem('epee_supabase_url') || '';
 let SUPABASE_KEY = localStorage.getItem('epee_supabase_key') || '';
 
@@ -1018,7 +1018,7 @@ function atualizarContador(n) {
 // AI COACH
 // ═══════════════════════════════════════════════════
 function iniciarPlano() {
-  document.getElementById('input-worker-url').value = WORKER_URL;
+  document.getElementById('input-api-key').value = ANTHROPIC_KEY ? '••••••••••••••••' : '';
   document.getElementById('input-supabase-url').value = SUPABASE_URL;
   document.getElementById('input-supabase-key').value = SUPABASE_KEY;
   atualizarStatusConfig();
@@ -1026,23 +1026,23 @@ function iniciarPlano() {
 }
 
 function atualizarStatusConfig() {
-  const ws = document.getElementById('config-status-worker');
+  const as = document.getElementById('config-status-apikey');
   const ss = document.getElementById('config-status-supabase');
-  if (WORKER_URL) { ws.textContent = '✓ Configurado: ' + WORKER_URL; ws.className = 'config-status ok'; }
-  else { ws.textContent = '— Não configurado'; ws.className = 'config-status fail'; }
+  if (ANTHROPIC_KEY) { as.textContent = '✓ API Key configurada'; as.className = 'config-status ok'; }
+  else { as.textContent = '— Não configurado'; as.className = 'config-status fail'; }
   if (SUPABASE_URL && SUPABASE_KEY) { ss.textContent = '✓ Configurado: ' + SUPABASE_URL; ss.className = 'config-status ok'; }
   else { ss.textContent = '— Não configurado'; ss.className = 'config-status fail'; }
 }
 
 function atualizarBtnPlano() {
-  document.getElementById('btn-gerar-plano').disabled = !(WORKER_URL && SUPABASE_URL && SUPABASE_KEY);
+  document.getElementById('btn-gerar-plano').disabled = !(ANTHROPIC_KEY && SUPABASE_URL && SUPABASE_KEY);
 }
 
-function guardarConfig() {
-  const url = document.getElementById('input-worker-url').value.trim();
-  if (!url) return;
-  WORKER_URL = url;
-  localStorage.setItem('epee_worker_url', url);
+function guardarApiKey() {
+  const key = document.getElementById('input-api-key').value.trim();
+  if (!key || key.startsWith('•')) return;
+  ANTHROPIC_KEY = key;
+  localStorage.setItem('epee_anthropic_key', key);
   atualizarStatusConfig(); atualizarBtnPlano();
 }
 
@@ -1072,24 +1072,38 @@ async function gerarPlano() {
       return `SESSÃO ${i + 1} (${s.data_treino}):\n- Duração: ${s.duracao_min ? s.duracao_min + ' min' : 'não registada'}\n- Combates: ${(s.vitorias||0) + (s.derrotas||0)} (${s.vitorias||0}V / ${s.derrotas||0}D)\n- Toques dados: ${s.toques||0} | Toques sofridos: ${s.toques_sofridos||0}\n- Competição: ${s.competicao ? 'Sim' : 'Não'}\n- Erros / a melhorar: ${s.erros || 'não registado'}\n- Condição física: ${s.condicao_fisica||'—'}/5\n- Notas: ${s.notas || 'sem notas'}`;
     }).join('\n\n');
 
+    const prompt = `És um treinador de esgrima especializado em espada (épée). Analisa as sessões de treino abaixo e cria um plano de exercícios para o atleta fazer sozinho em casa, focado nos erros recorrentes identificados. O plano deve ser prático, detalhado e em português europeu.\n\nSESSÕES RECENTES:\n${contexto}\n\nCria um plano de treino individual com 4 a 6 exercícios específicos, cada um com nome, objectivo, descrição detalhada e número de repetições ou duração. Foca-te nos erros mais recorrentes.`;
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
-    const res = await fetch(WORKER_URL, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contexto }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }]
+      }),
       signal: controller.signal
     });
     clearTimeout(timeout);
 
-    if (!res.ok) throw new Error('Worker respondeu com erro: ' + await res.text().catch(() => res.status));
-    const json = await res.json();
-    const plano = json.plano || json.content || json.text || JSON.stringify(json);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Erro ' + res.status);
+    }
+    const data = await res.json();
+    const plano = data.content?.[0]?.text || 'Erro ao gerar plano.';
     hideMsg('msg-plano');
     document.getElementById('plan-content').textContent = plano;
     document.getElementById('plan-output').classList.add('show');
   } catch (err) {
-    if (err.name === 'AbortError') showMsg('msg-plano', 'error', 'A ligação demorou demasiado. Verifica o Worker e tenta novamente.');
+    if (err.name === 'AbortError') showMsg('msg-plano', 'error', 'A ligação demorou demasiado. Tenta novamente.');
     else showMsg('msg-plano', 'error', 'Erro: ' + esc(err.message));
   }
   btn.disabled = false;
