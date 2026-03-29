@@ -1173,9 +1173,9 @@
       <div>
         <span class="timer-display" id="timer-display">3:00</span><span class="timer-ms" id="timer-ms">.0</span>
       </div>
-      <div class="timer-finish-msg" id="timer-finish-msg">⏱ Tempo esgotado!</div>
-      <div class="timer-overtime-msg" id="timer-overtime-msg">⚡ Toque de ouro — quem tocar primeiro ganha!</div>
-      <div class="timer-rest-msg" id="timer-rest-msg">💤 Descansa. Próximo assalto em breve.</div>
+      <div class="timer-finish-msg" id="timer-finish-msg">⏱ Disputa concluída!</div>
+      <div class="timer-overtime-msg" id="timer-overtime-msg"></div>
+      <div class="timer-rest-msg" id="timer-rest-msg">💤 Descansa. Próximo round em breve.</div>
     </div>
 
     <!-- CONTROLOS -->
@@ -1186,7 +1186,7 @@
 
     <!-- INFO -->
     <div class="timer-info-card" id="timer-info-card">
-      <strong>Modo Competição:</strong> 3 minutos de tempo efectivo. Se empate ao fim → 1 minuto extra com toque de ouro. O relógio para sempre que pausas.<br>
+      <strong>Modo Competição:</strong> 3 rounds de 3 minutos, com 1 minuto de descanso entre cada round. O descanso arranca automaticamente — podes saltá-lo se quiseres começar antes.<br>
       <strong>Modo Treino:</strong> Define o tempo que quiseres. Útil para séries de exercícios em casa.
     </div>
   </div>
@@ -1964,26 +1964,23 @@ async function copiarContexto() {
 // TEMPORIZADOR
 // ═══════════════════════════════════════════════════
 let timerInterval = null;
-let timerMs = 0;          // ms restantes
+let timerMs = 0;
 let timerRunning = false;
-let timerMode = 'comp';   // 'comp' | 'treino'
-let timerPhase = 'main';  // 'main' | 'overtime' | 'done'
+let timerMode = 'comp';    // 'comp' | 'treino'
+let timerPhase = 'main';   // 'main' | 'rest' | 'done'
+let timerRound = 1;        // round actual (1, 2, 3)
 
-const COMP_MAIN_MS = 3 * 60 * 1000;
-const COMP_OVERTIME_MS = 1 * 60 * 1000;
-
-function getRestMs() {
-  const min = parseInt(document.getElementById('input-rest-min').value) || 0;
-  return min * 60 * 1000;
-}
+const COMP_ROUNDS     = 3;
+const COMP_MAIN_MS    = 3 * 60 * 1000;
+const COMP_REST_MS    = 1 * 60 * 1000;
 
 function setTimerMode(mode) {
-  if (timerRunning) return; // não muda durante contagem
+  if (timerRunning) return;
   timerMode = mode;
   document.getElementById('btn-mode-comp').classList.toggle('active', mode === 'comp');
   document.getElementById('btn-mode-treino').classList.toggle('active', mode === 'treino');
   document.getElementById('timer-custom-row').style.display = mode === 'treino' ? 'flex' : 'none';
-  document.getElementById('timer-rest-row').style.display = mode === 'comp' ? 'flex' : 'none';
+  document.getElementById('timer-rest-row').style.display = 'none'; // selector manual removido — descanso é sempre 1 min em comp
   resetTimer();
 }
 
@@ -1998,49 +1995,52 @@ function resetTimer() {
   timerInterval = null;
   timerRunning = false;
   timerPhase = 'main';
+  timerRound = 1;
   timerMs = getInitialMs();
   atualizarFaceTimer();
   document.getElementById('btn-timer-start').textContent = '▶ Iniciar';
   const face = document.getElementById('timer-face');
   face.classList.remove('running', 'finished', 'overtime', 'rest');
-  document.getElementById('timer-phase-label').textContent = 'Pronto';
+  atualizarPhaseLabel();
+}
+
+function atualizarPhaseLabel() {
+  const el = document.getElementById('timer-phase-label');
+  if (timerMode === 'comp') {
+    if (timerPhase === 'main')  el.textContent = `Round ${timerRound} de ${COMP_ROUNDS}`;
+    if (timerPhase === 'rest')  el.textContent = `Descanso — Round ${timerRound + 1} a seguir`;
+    if (timerPhase === 'done')  el.textContent = 'Disputa concluída';
+  } else {
+    el.textContent = timerPhase === 'main' ? 'Assalto em curso' : timerPhase === 'done' ? 'Fim' : 'Pausado';
+  }
 }
 
 function toggleTimer() {
   if (timerPhase === 'done') { resetTimer(); return; }
   if (timerPhase === 'rest') {
-    // Salta o descanso e vai directo ao próximo assalto
+    // Salta descanso — arranca próximo round imediatamente
     clearInterval(timerInterval);
     timerInterval = null;
-    document.getElementById('timer-face').classList.remove('rest');
-    timerMs = COMP_MAIN_MS;
+    timerRound++;
     timerPhase = 'main';
+    timerMs = COMP_MAIN_MS;
+    const face = document.getElementById('timer-face');
+    face.classList.remove('rest');
     atualizarFaceTimer();
     startTimer();
     return;
   }
-  if (timerRunning) {
-    pauseTimer();
-  } else {
-    startTimer();
-  }
+  timerRunning ? pauseTimer() : startTimer();
 }
 
 function startTimer() {
   timerRunning = true;
   document.getElementById('btn-timer-start').textContent = '⏸ Pausar';
   document.getElementById('timer-face').classList.add('running');
+  atualizarPhaseLabel();
 
-  const phaseLabel = document.getElementById('timer-phase-label');
-  if (timerPhase === 'main') {
-    phaseLabel.textContent = timerMode === 'comp' ? 'Assalto — Tempo regulamentar' : 'Assalto em curso';
-  } else if (timerPhase === 'overtime') {
-    phaseLabel.textContent = 'Tempo extra — Toque de ouro';
-  }
-
-  const tick = 100;
   timerInterval = setInterval(() => {
-    timerMs -= tick;
+    timerMs -= 100;
     if (timerMs <= 0) {
       timerMs = 0;
       atualizarFaceTimer();
@@ -2048,64 +2048,51 @@ function startTimer() {
       timerInterval = null;
       timerRunning = false;
 
-      if (timerMode === 'comp' && timerPhase === 'main') {
-        // Passa para overtime
-        timerPhase = 'overtime';
-        timerMs = COMP_OVERTIME_MS;
-        const face = document.getElementById('timer-face');
-        face.classList.remove('running');
-        face.classList.add('overtime');
-        document.getElementById('timer-phase-label').textContent = 'Empate! Iniciar tempo extra?';
-        document.getElementById('btn-timer-start').textContent = '▶ Tempo extra';
+      const face = document.getElementById('timer-face');
+      face.classList.remove('running');
+
+      if (timerMode === 'comp' && timerPhase === 'main' && timerRound < COMP_ROUNDS) {
+        // Fim do round — arrancar descanso automático
+        timerPhase = 'rest';
+        timerMs = COMP_REST_MS;
+        face.classList.add('rest');
+        atualizarPhaseLabel();
+        document.getElementById('btn-timer-start').textContent = '▶ Saltar descanso';
+        atualizarFaceTimer();
         vibrar([200, 100, 200]);
+
+        timerInterval = setInterval(() => {
+          timerMs -= 100;
+          if (timerMs <= 0) {
+            timerMs = 0;
+            atualizarFaceTimer();
+            clearInterval(timerInterval);
+            timerInterval = null;
+            // Descanso terminou — arrancar próximo round automaticamente
+            timerRound++;
+            timerPhase = 'main';
+            timerMs = COMP_MAIN_MS;
+            face.classList.remove('rest');
+            atualizarFaceTimer();
+            vibrar([200, 100, 200]);
+            startTimer();
+          } else {
+            atualizarFaceTimer();
+          }
+        }, 100);
+
       } else {
-        // Fim do assalto
+        // Fim de tudo
         timerPhase = 'done';
-        const face = document.getElementById('timer-face');
-        face.classList.remove('running', 'overtime');
         face.classList.add('finished');
-        document.getElementById('timer-phase-label').textContent = 'Fim do assalto';
+        atualizarPhaseLabel();
         document.getElementById('btn-timer-start').textContent = '↺ Recomeçar';
         vibrar([300, 100, 300, 100, 600]);
-
-        // Descanso automático (só modo comp, se tempo > 0)
-        const restMs = getRestMs();
-        if (timerMode === 'comp' && restMs > 0) {
-          setTimeout(() => {
-            timerPhase = 'rest';
-            timerMs = restMs;
-            face.classList.remove('finished');
-            face.classList.add('rest');
-            document.getElementById('timer-phase-label').textContent = 'Descanso';
-            document.getElementById('btn-timer-start').textContent = '▶ Próximo assalto';
-            atualizarFaceTimer();
-            // Contagem regressiva do descanso
-            timerInterval = setInterval(() => {
-              timerMs -= 100;
-              if (timerMs <= 0) {
-                timerMs = 0;
-                atualizarFaceTimer();
-                clearInterval(timerInterval);
-                timerInterval = null;
-                // Pronto para próximo assalto
-                face.classList.remove('rest');
-                timerMs = COMP_MAIN_MS;
-                timerPhase = 'main';
-                atualizarFaceTimer();
-                document.getElementById('timer-phase-label').textContent = 'Pronto para o próximo assalto';
-                document.getElementById('btn-timer-start').textContent = '▶ Iniciar';
-                vibrar([200, 100, 200]);
-              } else {
-                atualizarFaceTimer();
-              }
-            }, 100);
-          }, 800); // pequeno delay antes de arrancar o descanso
-        }
       }
       return;
     }
     atualizarFaceTimer();
-  }, tick);
+  }, 100);
 }
 
 function pauseTimer() {
@@ -2114,7 +2101,7 @@ function pauseTimer() {
   timerRunning = false;
   document.getElementById('btn-timer-start').textContent = '▶ Retomar';
   document.getElementById('timer-face').classList.remove('running');
-  const label = timerPhase === 'overtime' ? 'Pausado — Tempo extra' : timerPhase === 'rest' ? 'Descanso pausado' : 'Pausado';
+  const label = timerPhase === 'rest' ? 'Descanso pausado' : `Pausado — Round ${timerRound}`;
   document.getElementById('timer-phase-label').textContent = label;
 }
 
