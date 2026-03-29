@@ -443,6 +443,28 @@
   /* ── MISC ── */
   .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
+  /* ── BADGES TREINO/COMPETIÇÃO ── */
+  .session-badge-treino {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px; background: var(--bg); color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .session-badge-comp {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px; background: var(--lime-bg); color: var(--lime-dark);
+    border: 1px solid var(--lime-dark);
+  }
+
+  /* ── BOTÃO APAGAR ── */
+  .btn-delete {
+    background: none; border: 1.5px solid var(--border); border-radius: 6px;
+    color: var(--text-secondary); font-size: 11px; font-weight: 700;
+    width: 26px; height: 26px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-delete:hover { background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
+
   /* ── RESPONSIVO ── */
   @media (max-width: 520px) {
     .metrics-grid { grid-template-columns: 1fr 1fr; }
@@ -681,20 +703,14 @@
       Quanto mais detalhado fores nos erros que registas, mais preciso é o plano.
     </div>
 
-    <div class="config-box">
-      <h3>Anthropic API Key</h3>
-      <div class="form-group">
-        <label class="form-label">API Key <span>(console.anthropic.com → API Keys)</span></label>
-        <input type="password" id="input-api-key" placeholder="sk-ant-...">
-      </div>
-      <button class="btn btn-sm" onclick="guardarApiKey()">Guardar key</button>
-      <p class="config-status" id="config-status-apikey">— Não configurado</p>
+    <div class="ai-intro" style="background:var(--lime-bg);border-color:var(--lime-dark);">
+      Clica em <strong>Copiar contexto</strong> — o resumo das tuas últimas 3 sessões é copiado para a área de transferência. Cola-o depois no <strong>Claude.ai</strong> para receberes o plano de treino.
     </div>
 
-    <button class="btn btn-lime" id="btn-gerar-plano" onclick="gerarPlano()" disabled>Gerar plano de treino</button>
+    <button class="btn btn-lime" id="btn-gerar-plano" onclick="copiarContexto()">Copiar contexto das sessões</button>
 
     <div class="plan-output" id="plan-output">
-      <h3>Plano gerado</h3>
+      <h3>Contexto copiado</h3>
       <div class="plan-content" id="plan-content"></div>
     </div>
 
@@ -963,7 +979,8 @@ function buildCard(s) {
   const durStr = s.duracao_min ? s.duracao_min + ' min' : '';
   const cond = s.condicao_fisica || '—';
   const totalCombates = (s.vitorias || 0) + (s.derrotas || 0);
-  const competicaoBadge = s.competicao ? ' 🥇' : '';
+  const badgeClass = s.competicao ? 'session-badge-comp' : 'session-badge-treino';
+  const badgeText = s.competicao ? '🥇 Competição' : 'Treino';
 
   const errosBlock = s.erros ? `<div class="session-erros"><strong>Erros / A melhorar</strong>${esc(s.erros)}</div>` : '';
   const notasBlock = s.notas ? `<div class="session-erros"><strong>Notas</strong>${esc(s.notas)}</div>` : '';
@@ -971,11 +988,17 @@ function buildCard(s) {
   return `
     <div class="session-card-header">
       <div>
-        <div class="session-date">${esc(dataFormatada)}${competicaoBadge}</div>
-        ${durStr ? `<div class="session-dur">${durStr}</div>` : ''}
+        <div class="session-date">${esc(dataFormatada)}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+          <span class="${badgeClass}">${badgeText}</span>
+          ${durStr ? `<span class="session-dur">${durStr}</span>` : ''}
+        </div>
       </div>
       <div class="session-ratio"><span class="w">${s.vitorias || 0}V</span> / <span class="l">${s.derrotas || 0}D</span></div>
-      <div class="session-condition" title="Condição física">${cond}</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="session-condition" title="Condição física">${cond}</div>
+        <button class="btn-delete" onclick="event.stopPropagation();apagarSessao(${s.id})" title="Apagar sessão">✕</button>
+      </div>
     </div>
     <div class="session-card-body">
       <div class="session-stats-mini">
@@ -995,6 +1018,16 @@ function buildCard(s) {
       </div>
       ${errosBlock}${notasBlock}
     </div>`;
+}
+
+async function apagarSessao(id) {
+  if (!confirm('Tens a certeza que queres apagar esta sessão?')) return;
+  try {
+    await supabaseFetch('sessions?id=eq.' + id, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+    carregarHistorial();
+  } catch (err) {
+    showMsg('msg-historial', 'error', 'Erro ao apagar: ' + esc(err.message));
+  }
 }
 
 function formatarData(str) {
@@ -1018,7 +1051,6 @@ function atualizarContador(n) {
 // AI COACH
 // ═══════════════════════════════════════════════════
 function iniciarPlano() {
-  document.getElementById('input-api-key').value = ANTHROPIC_KEY ? '••••••••••••••••' : '';
   document.getElementById('input-supabase-url').value = SUPABASE_URL;
   document.getElementById('input-supabase-key').value = SUPABASE_KEY;
   atualizarStatusConfig();
@@ -1026,24 +1058,13 @@ function iniciarPlano() {
 }
 
 function atualizarStatusConfig() {
-  const as = document.getElementById('config-status-apikey');
   const ss = document.getElementById('config-status-supabase');
-  if (ANTHROPIC_KEY) { as.textContent = '✓ API Key configurada'; as.className = 'config-status ok'; }
-  else { as.textContent = '— Não configurado'; as.className = 'config-status fail'; }
   if (SUPABASE_URL && SUPABASE_KEY) { ss.textContent = '✓ Configurado: ' + SUPABASE_URL; ss.className = 'config-status ok'; }
   else { ss.textContent = '— Não configurado'; ss.className = 'config-status fail'; }
 }
 
 function atualizarBtnPlano() {
-  document.getElementById('btn-gerar-plano').disabled = !(ANTHROPIC_KEY && SUPABASE_URL && SUPABASE_KEY);
-}
-
-function guardarApiKey() {
-  const key = document.getElementById('input-api-key').value.trim();
-  if (!key || key.startsWith('•')) return;
-  ANTHROPIC_KEY = key;
-  localStorage.setItem('epee_anthropic_key', key);
-  atualizarStatusConfig(); atualizarBtnPlano();
+  document.getElementById('btn-gerar-plano').disabled = !(SUPABASE_URL && SUPABASE_KEY);
 }
 
 function guardarSupabase() {
@@ -1056,10 +1077,10 @@ function guardarSupabase() {
   atualizarStatusConfig(); atualizarBtnPlano();
 }
 
-async function gerarPlano() {
+async function copiarContexto() {
   const btn = document.getElementById('btn-gerar-plano');
   btn.disabled = true;
-  showMsg('msg-plano', 'loading', 'A analisar sessões e a gerar plano');
+  showMsg('msg-plano', 'loading', 'A preparar contexto');
   document.getElementById('plan-output').classList.remove('show');
 
   try {
@@ -1072,39 +1093,15 @@ async function gerarPlano() {
       return `SESSÃO ${i + 1} (${s.data_treino}):\n- Duração: ${s.duracao_min ? s.duracao_min + ' min' : 'não registada'}\n- Combates: ${(s.vitorias||0) + (s.derrotas||0)} (${s.vitorias||0}V / ${s.derrotas||0}D)\n- Toques dados: ${s.toques||0} | Toques sofridos: ${s.toques_sofridos||0}\n- Competição: ${s.competicao ? 'Sim' : 'Não'}\n- Erros / a melhorar: ${s.erros || 'não registado'}\n- Condição física: ${s.condicao_fisica||'—'}/5\n- Notas: ${s.notas || 'sem notas'}`;
     }).join('\n\n');
 
-    const prompt = `És um treinador de esgrima especializado em espada (épée). Analisa as sessões de treino abaixo e cria um plano de exercícios para o atleta fazer sozinho em casa, focado nos erros recorrentes identificados. O plano deve ser prático, detalhado e em português europeu.\n\nSESSÕES RECENTES:\n${contexto}\n\nCria um plano de treino individual com 4 a 6 exercícios específicos, cada um com nome, objectivo, descrição detalhada e número de repetições ou duração. Foca-te nos erros mais recorrentes.`;
+    const textoCopiar = `És um treinador de esgrima especializado em espada (épée). Analisa as minhas sessões de treino abaixo e cria um plano de exercícios para eu fazer sozinho em casa, focado nos erros recorrentes. O plano deve ser prático, detalhado e em português europeu, com 4 a 6 exercícios com nome, objectivo, descrição e repetições/duração.\n\n${contexto}`;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: prompt }]
-      }),
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || 'Erro ' + res.status);
-    }
-    const data = await res.json();
-    const plano = data.content?.[0]?.text || 'Erro ao gerar plano.';
+    await navigator.clipboard.writeText(textoCopiar);
     hideMsg('msg-plano');
-    document.getElementById('plan-content').textContent = plano;
+    document.getElementById('plan-content').textContent = textoCopiar;
     document.getElementById('plan-output').classList.add('show');
+    showMsg('msg-plano', 'success', '✓ Contexto copiado! Cola-o no Claude.ai para receberes o plano.');
   } catch (err) {
-    if (err.name === 'AbortError') showMsg('msg-plano', 'error', 'A ligação demorou demasiado. Tenta novamente.');
-    else showMsg('msg-plano', 'error', 'Erro: ' + esc(err.message));
+    showMsg('msg-plano', 'error', 'Erro: ' + esc(err.message));
   }
   btn.disabled = false;
 }
