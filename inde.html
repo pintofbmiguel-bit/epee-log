@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉPÉE LOG — Diário de Treino</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --coral: #E8412A;
+    --coral-light: #FF6B52;
+    --coral-bg: #FFF0EE;
+    --lime: #C8F000;
+    --lime-dark: #8aaa00;
+    --lime-bg: #F5FBD8;
+    --black: #12100F;
+    --text: #1E1B1A;
+    --text-secondary: #7A6F6C;
+    --white: #FFFFFF;
+    --bg: #F2F0ED;
+    --card: #FFFFFF;
+    --border: #E5E0DC;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --shadow: 0 1px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--coral);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .header-title { padding: 18px 24px; }
+  .header-title h1 {
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .header-title h1 span { color: var(--lime); }
+  .header-title p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .header-badge {
+    padding: 18px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+  }
+  .header-badge span { font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 500; }
+  .header-badge strong { font-size: 15px; font-weight: 700; color: var(--lime); }
+
+  /* ── NAV ── */
+  nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 8px;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 14px 6px;
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+  }
+  nav button.active { color: var(--coral); }
+  nav button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 8px; right: 8px;
+    height: 2px;
+    background: var(--coral);
+    border-radius: 2px 2px 0 0;
+  }
+  nav button:hover:not(.active) { color: var(--text); }
+
+  /* ── MAIN ── */
+  main { max-width: 740px; margin: 0 auto; padding: 20px 16px 64px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-header { padding: 4px 0 20px; }
+  .section-header h2 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+  .section-header p { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+
+  /* ── DASHBOARD — PERIOD PILLS ── */
+  .period-pills {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .period-pill {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .period-pill.active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: var(--white);
+  }
+  .period-pill:hover:not(.active) { border-color: var(--coral); color: var(--coral); }
+
+  /* ── DASHBOARD — METRIC CARDS ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: box-shadow 0.2s;
+  }
+  .metric-card:hover { box-shadow: var(--shadow-md); }
+  .metric-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-secondary);
+  }
+  .metric-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .metric-value.coral { color: var(--coral); }
+  .metric-value.lime-dark { color: var(--lime-dark); }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* card coral de destaque */
+  .metric-card.featured {
+    background: var(--coral);
+    border-color: var(--coral);
+  }
+  .metric-card.featured .metric-label { color: rgba(255,255,255,0.7); }
+  .metric-card.featured .metric-value { color: var(--white); }
+  .metric-card.featured .metric-sub { color: rgba(255,255,255,0.65); }
+
+  /* card lime de destaque */
+  .metric-card.featured-lime {
+    background: var(--lime);
+    border-color: var(--lime-dark);
+  }
+  .metric-card.featured-lime .metric-label { color: rgba(0,0,0,0.5); }
+  .metric-card.featured-lime .metric-value { color: var(--black); }
+  .metric-card.featured-lime .metric-sub { color: rgba(0,0,0,0.45); }
+
+  .dashboard-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ── FORM CARDS ── */
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 7px; }
+  .form-label span { color: var(--text-secondary); font-weight: 400; font-size: 11px; }
+
+  .form-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 18px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+  .form-card-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+  }
+
+  /* ── INPUTS ── */
+  input[type="date"], input[type="number"], input[type="text"], textarea {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px 13px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--coral);
+    box-shadow: 0 0 0 3px var(--coral-bg);
+    background: var(--white);
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  /* ── GRID LAYOUTS ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .four-col { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+  /* ── CONDIÇÃO FÍSICA ── */
+  .condition-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+  .condition-btn {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 12px 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .condition-btn small {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+  .condition-btn.selected {
+    background: var(--lime);
+    border-color: var(--lime-dark);
+    color: var(--black);
+    box-shadow: 0 2px 8px rgba(157,194,0,0.3);
+  }
+  .condition-btn.selected small { color: var(--lime-dark); }
+  .condition-btn:hover:not(.selected) { border-color: var(--coral); background: var(--coral-bg); }
+
+  /* ── FIELD LABEL WIN/LOSS ── */
+  .label-win { color: var(--coral); font-size: 12px; font-weight: 700; display: block; margin-bottom: 7px; }
+  .label-loss { color: var(--text-secondary); font-size: 12px; font-weight: 700; display: block; margin-bottom: 7px; }
+  .input-center { text-align: center; font-size: 26px; font-weight: 800; padding: 13px; }
+
+  /* ── BOTÕES ── */
+  .btn {
+    background: var(--text);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    letter-spacing: 0.2px;
+  }
+  .btn:hover { background: var(--black); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { background: var(--border); color: var(--text-secondary); cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-primary { background: var(--coral); }
+  .btn-primary:hover { background: var(--coral-light); }
+  .btn-lime { background: var(--lime); color: var(--black); }
+  .btn-lime:hover { background: #d4f500; }
+  .btn-sm { width: auto; padding: 9px 18px; font-size: 13px; }
+
+  /* ── MENSAGENS ── */
+  .msg {
+    padding: 12px 15px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: none;
+    line-height: 1.5;
+    border-radius: var(--radius-sm);
+  }
+  .msg.show { display: flex; align-items: center; gap: 8px; }
+  .msg.success { background: var(--lime-bg); color: #4a6500; border: 1.5px solid var(--lime-dark); }
+  .msg.error { background: var(--coral-bg); color: var(--coral); border: 1.5px solid var(--coral); }
+  .msg.loading { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── HISTORIAL ── */
+  .session-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .session-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--coral); }
+  .session-card.expanded { border-color: var(--coral); }
+  .session-card-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  .session-date { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.2px; }
+  .session-dur { font-size: 11px; color: var(--text-secondary); font-weight: 500; margin-top: 2px; }
+  .session-ratio { font-size: 13px; font-weight: 700; background: var(--bg); padding: 4px 10px; border-radius: 20px; }
+  .session-ratio .w { color: var(--coral); }
+  .session-ratio .l { color: var(--text-secondary); }
+  .session-condition {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--lime);
+    color: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800;
+  }
+  .session-card-body { display: none; padding: 14px 16px; border-top: 1px solid var(--border); }
+  .session-card.expanded .session-card-body { display: block; }
+
+  .session-stats-mini {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .stat-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-mini-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+  }
+  .stat-mini-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .stat-mini-value.coral { color: var(--coral); }
+
+  .session-erros {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+  }
+  .session-erros strong {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--coral);
+    margin-bottom: 4px;
+  }
+  .empty-state { text-align: center; padding: 56px 20px; color: var(--text-secondary); }
+  .empty-state h3 { font-size: 18px; font-weight: 800; color: var(--border); margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; font-weight: 500; line-height: 1.6; }
+
+  /* ── CONFIG BOX ── */
+  .config-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .config-box h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+  .config-box h3::before { content: ''; display: inline-block; width: 7px; height: 7px; background: var(--coral); border-radius: 50%; }
+  .config-status { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-top: 10px; padding: 7px 10px; background: var(--bg); border-radius: 6px; }
+  .config-status.ok { color: #4a6500; background: var(--lime-bg); }
+  .config-status.fail { color: var(--coral); background: var(--coral-bg); }
+
+  /* ── AI INTRO ── */
+  .ai-intro { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; font-size: 13px; line-height: 1.8; color: var(--text-secondary); box-shadow: var(--shadow); }
+  .ai-intro strong { color: var(--coral); font-weight: 700; }
+
+  /* ── PLANO OUTPUT ── */
+  .plan-output { background: var(--lime-bg); border: 1.5px solid var(--lime-dark); border-radius: var(--radius); padding: 20px; margin-top: 16px; display: none; }
+  .plan-output.show { display: block; }
+  .plan-output h3 { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.07); display: flex; align-items: center; gap: 7px; }
+  .plan-output h3::before { content: '✦'; color: var(--lime-dark); font-size: 13px; }
+  .plan-content { font-size: 13px; line-height: 1.9; color: var(--text); white-space: pre-wrap; }
+
+  /* ── MISC ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* ── RESPONSIVO ── */
+  @media (max-width: 520px) {
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .two-col, .three-col, .four-col { grid-template-columns: 1fr 1fr; }
+    header { grid-template-columns: 1fr; }
+    .header-badge { display: none; }
+    nav button { font-size: 10px; padding: 12px 4px; }
+    .condition-btn small { display: none; }
+  }
+  @media (max-width: 360px) {
+    .metrics-grid { grid-template-columns: 1fr; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <h1>ÉPÉE <span>LOG</span></h1>
+    <p>Diário de treino &amp; AI Coach — Espada</p>
+  </div>
+  <div class="header-badge">
+    <span>Arma</span>
+    <strong>ESPADA</strong>
+    <span id="session-count-header">— sessões</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('dashboard')">Dashboard</button>
+  <button onclick="showSection('registar')">Registar</button>
+  <button onclick="showSection('historial')">Historial</button>
+  <button onclick="showSection('plano')">AI Coach</button>
+</nav>
+
+<main>
+
+  <!-- ══════════════════════════════════════════
+       SECÇÃO 1 — DASHBOARD
+  ══════════════════════════════════════════ -->
+  <div class="section active" id="section-dashboard">
+    <div class="section-header">
+      <h2>Dashboard</h2>
+      <p>Resumo da tua actividade</p>
+    </div>
+
+    <!-- FILTROS DE PERÍODO -->
+    <div class="period-pills">
+      <button class="period-pill active" onclick="selectPeriod('semana', this)">Esta semana</button>
+      <button class="period-pill" onclick="selectPeriod('mes', this)">Este mês</button>
+      <button class="period-pill" onclick="selectPeriod('trimestre', this)">Trimestre</button>
+      <button class="period-pill" onclick="selectPeriod('semestre', this)">Semestre</button>
+      <button class="period-pill" onclick="selectPeriod('ano', this)">Este ano</button>
+    </div>
+
+    <div id="dashboard-loading" class="dashboard-loading">A carregar dados...</div>
+
+    <div id="dashboard-content" style="display:none;">
+      <div class="metrics-grid">
+        <div class="metric-card featured">
+          <div class="metric-icon">🤺</div>
+          <div class="metric-label">Combates</div>
+          <div class="metric-value" id="m-combates">—</div>
+          <div class="metric-sub" id="m-combates-sub">assaltos totais</div>
+        </div>
+        <div class="metric-card featured-lime">
+          <div class="metric-icon">🏆</div>
+          <div class="metric-label">Vitórias</div>
+          <div class="metric-value" id="m-vitorias">—</div>
+          <div class="metric-sub" id="m-vitorias-sub">— taxa de vitória</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">❌</div>
+          <div class="metric-label">Derrotas</div>
+          <div class="metric-value" id="m-derrotas">—</div>
+          <div class="metric-sub" id="m-derrotas-sub">assaltos perdidos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">⚡</div>
+          <div class="metric-label">Toques</div>
+          <div class="metric-value coral" id="m-toques">—</div>
+          <div class="metric-sub" id="m-toques-sub">pontos marcados</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">🥇</div>
+          <div class="metric-label">Competições</div>
+          <div class="metric-value" id="m-competicoes">—</div>
+          <div class="metric-sub">eventos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-label">Tempo total</div>
+          <div class="metric-value lime-dark" id="m-tempo">—</div>
+          <div class="metric-sub" id="m-tempo-sub">de treino</div>
+        </div>
+      </div>
+
+      <!-- LINHA EXTRA: sessões e condição média -->
+      <div class="metrics-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="metric-card">
+          <div class="metric-icon">📅</div>
+          <div class="metric-label">Sessões</div>
+          <div class="metric-value" id="m-sessoes">—</div>
+          <div class="metric-sub">treinos realizados</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">💪</div>
+          <div class="metric-label">Condição média</div>
+          <div class="metric-value" id="m-condicao">—</div>
+          <div class="metric-sub">em 5 sessões</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboard-empty" style="display:none;" class="empty-state">
+      <h3>Sem dados</h3>
+      <p>Nenhuma sessão registada neste período.<br>Começa por registar um treino.</p>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECÇÃO 2 — REGISTAR TREINO
+  ══════════════════════════════════════════ -->
+  <div class="section" id="section-registar">
+    <div class="section-header">
+      <h2>Nova sessão</h2>
+      <p>Registo do treino de hoje</p>
+    </div>
+
+    <div id="msg-registar" class="msg"></div>
+
+    <!-- DATA, DURAÇÃO E TIPO -->
+    <div class="form-card">
+      <div class="form-card-title">Data e duração</div>
+      <div class="two-col">
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input type="date" id="input-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duração <span>(min)</span></label>
+          <input type="number" id="input-duracao" placeholder="90" min="10" max="300">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">É competição?</label>
+        <div style="display:flex;gap:8px;">
+          <button class="period-pill" id="btn-competicao-nao" onclick="selectCompeticao(false)" style="flex:1;text-align:center;">Treino</button>
+          <button class="period-pill" id="btn-competicao-sim" onclick="selectCompeticao(true)" style="flex:1;text-align:center;">🥇 Competição</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMBATES, TOQUES -->
+    <div class="form-card">
+      <div class="form-card-title">Combates e pontuação</div>
+      <div class="four-col">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="label-win">Vitórias</label>
+          <input type="number" id="input-vitorias" class="input-center" placeholder="0" min="0" max="999">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="label-loss">Derrotas</label>
+          <input type="number" id="input-derrotas" class="input-center" placeholder="0" min="0" max="999">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Toques dados</label>
+          <input type="number" id="input-toques" class="input-center" placeholder="0" min="0" max="999">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Toques sofridos</label>
+          <input type="number" id="input-toques-sofridos" class="input-center" placeholder="0" min="0" max="999">
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROS RECORRENTES -->
+    <div class="form-card">
+      <div class="form-card-title">Erros e pontos a melhorar</div>
+      <textarea id="input-erros" placeholder="Ex: Braço a descoberto no ataque. Guarda demasiado alta. Reacção lenta à provocação do adversário..."></textarea>
+    </div>
+
+    <!-- CONDIÇÃO FÍSICA -->
+    <div class="form-card">
+      <div class="form-card-title">Condição física hoje</div>
+      <div class="condition-scale">
+        <button class="condition-btn" onclick="selectCondition(1)">1<small>ESGOTADO</small></button>
+        <button class="condition-btn" onclick="selectCondition(2)">2<small>CANSADO</small></button>
+        <button class="condition-btn" onclick="selectCondition(3)">3<small>NORMAL</small></button>
+        <button class="condition-btn" onclick="selectCondition(4)">4<small>BOM</small></button>
+        <button class="condition-btn" onclick="selectCondition(5)">5<small>EXCELENTE</small></button>
+      </div>
+    </div>
+
+    <!-- NOTAS LIVRES -->
+    <div class="form-card">
+      <div class="form-card-title">Notas livres <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-secondary);">(opcional)</span></div>
+      <textarea id="input-notas" placeholder="Observações do treinador, adversários, contexto do treino..."></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="guardarSessao()">Guardar sessão</button>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECÇÃO 3 — HISTORIAL
+  ══════════════════════════════════════════ -->
+  <div class="section" id="section-historial">
+    <div class="section-header">
+      <h2>Historial</h2>
+      <p>Todas as sessões registadas</p>
+    </div>
+    <div id="msg-historial" class="msg"></div>
+    <div id="historial-list"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECÇÃO 4 — AI COACH
+  ══════════════════════════════════════════ -->
+  <div class="section" id="section-plano">
+    <div class="section-header">
+      <h2>AI Coach</h2>
+      <p>Plano de treino gerado a partir das tuas sessões</p>
+    </div>
+
+    <div id="msg-plano" class="msg"></div>
+
+    <div class="ai-intro">
+      O AI Coach analisa as tuas <strong>últimas 3 sessões</strong> — erros recorrentes, resultados e condição física — e gera um <strong>plano de exercícios para fazer sozinho em casa</strong>, focado nos teus pontos fracos específicos.<br><br>
+      Quanto mais detalhado fores nos erros que registas, mais preciso é o plano.
+    </div>
+
+    <div class="config-box">
+      <h3>Cloudflare Worker</h3>
+      <div class="form-group">
+        <label class="form-label">URL do Worker</label>
+        <input type="text" id="input-worker-url" placeholder="https://fencing-coach.SEU-UTILIZADOR.workers.dev">
+      </div>
+      <button class="btn btn-sm" onclick="guardarConfig()">Guardar URL</button>
+      <p class="config-status" id="config-status-worker">— Não configurado</p>
+    </div>
+
+    <button class="btn btn-lime" id="btn-gerar-plano" onclick="gerarPlano()" disabled>Gerar plano de treino</button>
+
+    <div class="plan-output" id="plan-output">
+      <h3>Plano gerado</h3>
+      <div class="plan-content" id="plan-content"></div>
+    </div>
+
+    <div class="divider" style="margin-top:24px;"></div>
+
+    <div class="config-box">
+      <h3>Supabase</h3>
+      <div class="form-group">
+        <label class="form-label">URL do projecto</label>
+        <input type="text" id="input-supabase-url" placeholder="https://xxxxxxxxxxx.supabase.co">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Anon Key</label>
+        <input type="text" id="input-supabase-key" placeholder="eyJ...">
+      </div>
+      <button class="btn btn-sm" onclick="guardarSupabase()">Guardar credenciais</button>
+      <p class="config-status" id="config-status-supabase">— Não configurado</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ═══════════════════════════════════════════════════
+let condicaoSeleccionada = 0;
+let eCompeticao = false;
+let periodoActual = 'semana';
+let WORKER_URL = localStorage.getItem('epee_worker_url') || '';
+let SUPABASE_URL = localStorage.getItem('epee_supabase_url') || '';
+let SUPABASE_KEY = localStorage.getItem('epee_supabase_key') || '';
+
+// ═══════════════════════════════════════════════════
+// NAVEGAÇÃO
+// ═══════════════════════════════════════════════════
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'dashboard') carregarDashboard();
+  if (name === 'historial') carregarHistorial();
+  if (name === 'plano') iniciarPlano();
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD — PERÍODO
+// ═══════════════════════════════════════════════════
+function selectPeriod(periodo, btn) {
+  periodoActual = periodo;
+  document.querySelectorAll('.period-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  carregarDashboard();
+}
+
+function getDateRange(periodo) {
+  const hoje = new Date();
+  const start = new Date(hoje);
+
+  if (periodo === 'semana') {
+    const dia = hoje.getDay() || 7; // segunda = 1
+    start.setDate(hoje.getDate() - dia + 1);
+  } else if (periodo === 'mes') {
+    start.setDate(1);
+  } else if (periodo === 'trimestre') {
+    start.setMonth(hoje.getMonth() - 2, 1);
+  } else if (periodo === 'semestre') {
+    start.setMonth(hoje.getMonth() - 5, 1);
+  } else if (periodo === 'ano') {
+    start.setMonth(0, 1);
+  }
+
+  start.setHours(0, 0, 0, 0);
+  return start.toISOString().split('T')[0];
+}
+
+async function carregarDashboard() {
+  document.getElementById('dashboard-loading').style.display = 'block';
+  document.getElementById('dashboard-content').style.display = 'none';
+  document.getElementById('dashboard-empty').style.display = 'none';
+
+  try {
+    const dataInicio = getDateRange(periodoActual);
+    const data = await supabaseFetch(
+      `sessions?select=*&data_treino=gte.${dataInicio}&order=data_treino.desc`
+    );
+
+    document.getElementById('dashboard-loading').style.display = 'none';
+
+    if (!data || data.length === 0) {
+      document.getElementById('dashboard-empty').style.display = 'block';
+      atualizarContador();
+      return;
+    }
+
+    // Calcular métricas
+    const sessoes = data.length;
+    const totalCombates = data.reduce((s, r) => s + (r.vitorias || 0) + (r.derrotas || 0), 0);
+    const totalVitorias = data.reduce((s, r) => s + (r.vitorias || 0), 0);
+    const totalDerrotas = data.reduce((s, r) => s + (r.derrotas || 0), 0);
+    const totalToques = data.reduce((s, r) => s + (r.toques || 0), 0);
+    const totalCompeticoes = data.filter(r => r.competicao).length;
+    const totalMinutos = data.reduce((s, r) => s + (r.duracao_min || 0), 0);
+    const taxaVitoria = totalCombates > 0 ? Math.round((totalVitorias / totalCombates) * 100) : 0;
+    const condicaoMedia = data.filter(r => r.condicao_fisica).length > 0
+      ? (data.reduce((s, r) => s + (r.condicao_fisica || 0), 0) / data.filter(r => r.condicao_fisica).length).toFixed(1)
+      : '—';
+
+    // Formatar tempo
+    const horas = Math.floor(totalMinutos / 60);
+    const min = totalMinutos % 60;
+    const tempoStr = horas > 0 ? `${horas}h${min > 0 ? min + 'm' : ''}` : `${min}m`;
+
+    // Preencher cards
+    document.getElementById('m-combates').textContent = totalCombates;
+    document.getElementById('m-combates-sub').textContent = sessoes + (sessoes === 1 ? ' sessão' : ' sessões');
+    document.getElementById('m-vitorias').textContent = totalVitorias;
+    document.getElementById('m-vitorias-sub').textContent = taxaVitoria + '% taxa de vitória';
+    document.getElementById('m-derrotas').textContent = totalDerrotas;
+    document.getElementById('m-derrotas-sub').textContent = totalCombates > 0 ? Math.round((totalDerrotas / totalCombates) * 100) + '% taxa de derrota' : 'sem combates';
+    document.getElementById('m-toques').textContent = totalToques;
+    document.getElementById('m-toques-sub').textContent = totalCombates > 0 && totalToques > 0 ? (totalToques / totalCombates).toFixed(1) + ' por combate' : 'pontos marcados';
+    document.getElementById('m-competicoes').textContent = totalCompeticoes;
+    document.getElementById('m-tempo').textContent = totalMinutos > 0 ? tempoStr : '—';
+    document.getElementById('m-tempo-sub').textContent = totalMinutos > 0 ? totalMinutos + ' minutos' : 'sem duração registada';
+    document.getElementById('m-sessoes').textContent = sessoes;
+    document.getElementById('m-condicao').textContent = condicaoMedia + (condicaoMedia !== '—' ? '/5' : '');
+
+    document.getElementById('dashboard-content').style.display = 'block';
+    atualizarContador(data.length);
+
+  } catch (err) {
+    document.getElementById('dashboard-loading').style.display = 'none';
+    document.getElementById('dashboard-empty').style.display = 'block';
+    document.getElementById('dashboard-empty').innerHTML = `<h3>Erro</h3><p>${esc(err.message)}</p>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// FORMULÁRIO — SELECÇÕES
+// ═══════════════════════════════════════════════════
+function selectCondition(val) {
+  condicaoSeleccionada = val;
+  document.querySelectorAll('.condition-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i + 1 === val);
+  });
+}
+
+function selectCompeticao(val) {
+  eCompeticao = val;
+  document.getElementById('btn-competicao-sim').classList.toggle('active', val);
+  document.getElementById('btn-competicao-nao').classList.toggle('active', !val);
+}
+
+// ═══════════════════════════════════════════════════
+// MENSAGENS
+// ═══════════════════════════════════════════════════
+function showMsg(id, tipo, texto) {
+  const el = document.getElementById(id);
+  el.className = 'msg ' + tipo + ' show';
+  el.innerHTML = tipo === 'loading' ? texto + ' <span class="blink">_</span>' : texto;
+}
+function hideMsg(id) { document.getElementById(id).className = 'msg'; }
+
+// ═══════════════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════════════
+async function supabaseFetch(path, opts = {}) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Supabase não configurado. Vai ao AI Coach e insere as credenciais.');
+  const url = SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/' + path;
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.method === 'POST' ? 'return=representation' : '',
+      ...(opts.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Erro Supabase ' + res.status);
+  }
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════
+// GUARDAR SESSÃO
+// ═══════════════════════════════════════════════════
+async function guardarSessao() {
+  const data = document.getElementById('input-data').value;
+  const duracao = document.getElementById('input-duracao').value;
+  const erros = document.getElementById('input-erros').value.trim();
+  const vitorias = parseInt(document.getElementById('input-vitorias').value) || 0;
+  const derrotas = parseInt(document.getElementById('input-derrotas').value) || 0;
+  const toques = parseInt(document.getElementById('input-toques').value) || 0;
+  const toquesSofridos = parseInt(document.getElementById('input-toques-sofridos').value) || 0;
+  const notas = document.getElementById('input-notas').value.trim();
+
+  if (!data) return showMsg('msg-registar', 'error', 'Define a data da sessão.');
+  if (condicaoSeleccionada === 0) return showMsg('msg-registar', 'error', 'Selecciona a condição física.');
+
+  showMsg('msg-registar', 'loading', 'A guardar sessão');
+
+  const payload = {
+    data_treino: data,
+    duracao_min: duracao ? parseInt(duracao) : null,
+    vitorias, derrotas,
+    toques, toques_sofridos: toquesSofridos,
+    competicao: eCompeticao,
+    erros: erros || null,
+    condicao_fisica: condicaoSeleccionada,
+    notas: notas || null
+  };
+
+  try {
+    await supabaseFetch('sessions?select=id', { method: 'POST', body: JSON.stringify(payload) });
+    showMsg('msg-registar', 'success', 'Sessão guardada com sucesso.');
+    resetForm();
+  } catch (err) {
+    showMsg('msg-registar', 'error', 'Erro ao guardar: ' + esc(err.message));
+  }
+}
+
+function resetForm() {
+  ['input-data','input-duracao','input-erros','input-vitorias','input-derrotas','input-toques','input-toques-sofridos','input-notas'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  condicaoSeleccionada = 0;
+  eCompeticao = false;
+  document.querySelectorAll('.condition-btn').forEach(b => b.classList.remove('selected'));
+  selectCompeticao(false);
+}
+
+// ═══════════════════════════════════════════════════
+// HISTORIAL
+// ═══════════════════════════════════════════════════
+async function carregarHistorial() {
+  const list = document.getElementById('historial-list');
+  list.innerHTML = '';
+  showMsg('msg-historial', 'loading', 'A carregar historial');
+  try {
+    const data = await supabaseFetch('sessions?select=*&order=data_treino.desc&limit=50');
+    hideMsg('msg-historial');
+
+    if (!data || data.length === 0) {
+      list.innerHTML = `<div class="empty-state"><h3>Sem sessões</h3><p>Nenhuma sessão registada ainda.</p></div>`;
+      return;
+    }
+    data.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'session-card';
+      card.innerHTML = buildCard(s);
+      card.onclick = () => card.classList.toggle('expanded');
+      list.appendChild(card);
+    });
+  } catch (err) {
+    showMsg('msg-historial', 'error', 'Erro ao carregar: ' + esc(err.message));
+  }
+}
+
+function buildCard(s) {
+  const dataFormatada = formatarData(s.data_treino);
+  const durStr = s.duracao_min ? s.duracao_min + ' min' : '';
+  const cond = s.condicao_fisica || '—';
+  const totalCombates = (s.vitorias || 0) + (s.derrotas || 0);
+  const competicaoBadge = s.competicao ? ' 🥇' : '';
+
+  const errosBlock = s.erros ? `<div class="session-erros"><strong>Erros / A melhorar</strong>${esc(s.erros)}</div>` : '';
+  const notasBlock = s.notas ? `<div class="session-erros"><strong>Notas</strong>${esc(s.notas)}</div>` : '';
+
+  return `
+    <div class="session-card-header">
+      <div>
+        <div class="session-date">${esc(dataFormatada)}${competicaoBadge}</div>
+        ${durStr ? `<div class="session-dur">${durStr}</div>` : ''}
+      </div>
+      <div class="session-ratio"><span class="w">${s.vitorias || 0}V</span> / <span class="l">${s.derrotas || 0}D</span></div>
+      <div class="session-condition" title="Condição física">${cond}</div>
+    </div>
+    <div class="session-card-body">
+      <div class="session-stats-mini">
+        <div class="stat-mini">
+          <div class="stat-mini-label">Combates</div>
+          <div class="stat-mini-value">${totalCombates}</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-label">Toques dados</div>
+          <div class="stat-mini-value coral">${s.toques || 0}</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-label">Toques sofridos</div>
+          <div class="stat-mini-value">${s.toques_sofridos || 0}</div>
+        </div>
+        ${s.duracao_min ? `<div class="stat-mini"><div class="stat-mini-label">Duração</div><div class="stat-mini-value">${s.duracao_min}m</div></div>` : ''}
+      </div>
+      ${errosBlock}${notasBlock}
+    </div>`;
+}
+
+function formatarData(str) {
+  if (!str) return '—';
+  const [y, m, d] = str.split('-');
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return d + ' ' + (meses[parseInt(m) - 1] || m) + ' ' + y;
+}
+
+function atualizarContador(n) {
+  if (n !== undefined) {
+    document.getElementById('session-count-header').textContent = n + ' sessões';
+    return;
+  }
+  supabaseFetch('sessions?select=id').then(data => {
+    document.getElementById('session-count-header').textContent = (data ? data.length : 0) + ' sessões';
+  }).catch(() => {});
+}
+
+// ═══════════════════════════════════════════════════
+// AI COACH
+// ═══════════════════════════════════════════════════
+function iniciarPlano() {
+  document.getElementById('input-worker-url').value = WORKER_URL;
+  document.getElementById('input-supabase-url').value = SUPABASE_URL;
+  document.getElementById('input-supabase-key').value = SUPABASE_KEY;
+  atualizarStatusConfig();
+  atualizarBtnPlano();
+}
+
+function atualizarStatusConfig() {
+  const ws = document.getElementById('config-status-worker');
+  const ss = document.getElementById('config-status-supabase');
+  if (WORKER_URL) { ws.textContent = '✓ Configurado: ' + WORKER_URL; ws.className = 'config-status ok'; }
+  else { ws.textContent = '— Não configurado'; ws.className = 'config-status fail'; }
+  if (SUPABASE_URL && SUPABASE_KEY) { ss.textContent = '✓ Configurado: ' + SUPABASE_URL; ss.className = 'config-status ok'; }
+  else { ss.textContent = '— Não configurado'; ss.className = 'config-status fail'; }
+}
+
+function atualizarBtnPlano() {
+  document.getElementById('btn-gerar-plano').disabled = !(WORKER_URL && SUPABASE_URL && SUPABASE_KEY);
+}
+
+function guardarConfig() {
+  const url = document.getElementById('input-worker-url').value.trim();
+  if (!url) return;
+  WORKER_URL = url;
+  localStorage.setItem('epee_worker_url', url);
+  atualizarStatusConfig(); atualizarBtnPlano();
+}
+
+function guardarSupabase() {
+  const url = document.getElementById('input-supabase-url').value.trim();
+  const key = document.getElementById('input-supabase-key').value.trim();
+  if (!url || !key) return;
+  SUPABASE_URL = url; SUPABASE_KEY = key;
+  localStorage.setItem('epee_supabase_url', url);
+  localStorage.setItem('epee_supabase_key', key);
+  atualizarStatusConfig(); atualizarBtnPlano();
+}
+
+async function gerarPlano() {
+  const btn = document.getElementById('btn-gerar-plano');
+  btn.disabled = true;
+  showMsg('msg-plano', 'loading', 'A analisar sessões e a gerar plano');
+  document.getElementById('plan-output').classList.remove('show');
+
+  try {
+    const ultimas = await supabaseFetch('sessions?select=*&order=data_treino.desc&limit=3');
+    if (!ultimas || ultimas.length === 0) {
+      showMsg('msg-plano', 'error', 'Sem sessões registadas. Regista pelo menos uma sessão antes de gerar um plano.');
+      btn.disabled = false; return;
+    }
+    const contexto = ultimas.map((s, i) => {
+      return `SESSÃO ${i + 1} (${s.data_treino}):\n- Duração: ${s.duracao_min ? s.duracao_min + ' min' : 'não registada'}\n- Combates: ${(s.vitorias||0) + (s.derrotas||0)} (${s.vitorias||0}V / ${s.derrotas||0}D)\n- Toques dados: ${s.toques||0} | Toques sofridos: ${s.toques_sofridos||0}\n- Competição: ${s.competicao ? 'Sim' : 'Não'}\n- Erros / a melhorar: ${s.erros || 'não registado'}\n- Condição física: ${s.condicao_fisica||'—'}/5\n- Notas: ${s.notas || 'sem notas'}`;
+    }).join('\n\n');
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contexto }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error('Worker respondeu com erro: ' + await res.text().catch(() => res.status));
+    const json = await res.json();
+    const plano = json.plano || json.content || json.text || JSON.stringify(json);
+    hideMsg('msg-plano');
+    document.getElementById('plan-content').textContent = plano;
+    document.getElementById('plan-output').classList.add('show');
+  } catch (err) {
+    if (err.name === 'AbortError') showMsg('msg-plano', 'error', 'A ligação demorou demasiado. Verifica o Worker e tenta novamente.');
+    else showMsg('msg-plano', 'error', 'Erro: ' + esc(err.message));
+  }
+  btn.disabled = false;
+}
+
+// XSS — SANITIZAÇÃO (nunca remover)
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// ═══════════════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('input-data').value = new Date().toISOString().split('T')[0];
+  selectCompeticao(false);
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    carregarDashboard();
+  } else {
+    document.getElementById('dashboard-loading').style.display = 'none';
+    document.getElementById('dashboard-empty').style.display = 'block';
+    document.getElementById('dashboard-empty').innerHTML = `<h3>Configura o Supabase</h3><p>Vai ao AI Coach e insere as credenciais<br>para activar o dashboard.</p>`;
+  }
+});
+</script>
+
+</body>
+</html>
