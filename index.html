@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#E8412A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Épée Log">
+<link rel="manifest" href="manifest.json">
 <title>ÉPÉE LOG — Diário de Treino</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -1034,6 +1039,7 @@ async function apagarSessao(id) {
       }
     });
     if (!res.ok) throw new Error('Erro ' + res.status);
+    hideMsg('msg-historial');
     carregarHistorial();
   } catch (err) {
     showMsg('msg-historial', 'error', 'Erro ao apagar: ' + esc(err.message));
@@ -1141,6 +1147,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('dashboard-empty').innerHTML = `<h3>Configura o Supabase</h3><p>Vai ao AI Coach e insere as credenciais<br>para activar o dashboard.</p>`;
   }
 });
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/epee-log/sw.js');
+}
 </script>
 
 </body>
