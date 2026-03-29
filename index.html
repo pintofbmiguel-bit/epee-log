@@ -908,6 +908,116 @@
     min-height: 0;
   }
   .tecnicas-preview.has-items { color: var(--lime-dark); font-weight: 600; }
+
+  /* ── MÓDULO DE COMBATES ── */
+  .combate-row {
+    display: grid;
+    grid-template-columns: 1fr 76px 52px 52px 28px;
+    gap: 7px;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+  .combate-row input[type="text"],
+  .combate-row input[type="number"],
+  .combate-row select {
+    font-size: 13px;
+    padding: 9px 8px;
+    font-weight: 500;
+  }
+  .combate-row select {
+    cursor: pointer;
+    -webkit-appearance: none;
+    text-align: center;
+  }
+  .combate-row select.resultado-v {
+    background: var(--lime-bg);
+    border-color: var(--lime-dark);
+    color: var(--lime-dark);
+    font-weight: 700;
+  }
+  .combate-row select.resultado-d {
+    background: var(--coral-bg);
+    border-color: var(--coral);
+    color: var(--coral);
+    font-weight: 700;
+  }
+  .combate-col-labels {
+    display: grid;
+    grid-template-columns: 1fr 76px 52px 52px 28px;
+    gap: 7px;
+    margin-bottom: 6px;
+  }
+  .combate-col-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+  .combate-col-label:first-child { text-align: left; }
+  .btn-add-combate {
+    width: 100%;
+    padding: 10px;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text-secondary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.15s;
+  }
+  .btn-add-combate:hover { border-color: var(--coral); color: var(--coral); background: var(--coral-bg); }
+  .combates-totais {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .combate-total-val {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  .combate-total-val.coral { color: var(--coral); }
+  .combate-total-val.lime { color: var(--lime-dark); }
+  .combate-total-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+  }
+  .btn-delete-combate {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    width: 28px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-delete-combate:hover { background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
+
+  @media (max-width: 420px) {
+    .combate-row { grid-template-columns: 1fr 64px 44px 44px 26px; gap: 5px; }
+    .combate-col-labels { grid-template-columns: 1fr 64px 44px 44px 26px; gap: 5px; }
+  }
 </style>
 </head>
 <body>
@@ -1066,33 +1176,40 @@
       </div>
     </div>
 
-    <!-- COMBATES, TOQUES -->
+    <!-- COMBATES -->
     <div class="form-card">
-      <div class="form-card-title">Combates e pontuação</div>
-      <div class="four-col">
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="label-win">Vitórias</label>
-          <input type="number" id="input-vitorias" class="input-center" placeholder="0" min="0" max="999">
+      <div class="form-card-title">Combates <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-secondary);">(opcional)</span></div>
+
+      <div class="combate-col-labels">
+        <span class="combate-col-label">Adversário</span>
+        <span class="combate-col-label">Resultado</span>
+        <span class="combate-col-label">Dados</span>
+        <span class="combate-col-label">Sofrid.</span>
+        <span></span>
+      </div>
+
+      <div id="combates-list"></div>
+
+      <button class="btn-add-combate" onclick="adicionarCombate()">＋ Adicionar combate</button>
+
+      <div class="combates-totais" id="combates-totais" style="display:none;">
+        <div>
+          <div class="combate-total-val" id="ct-combates">0</div>
+          <div class="combate-total-lbl">Combates</div>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="label-loss">Derrotas</label>
-          <input type="number" id="input-derrotas" class="input-center" placeholder="0" min="0" max="999">
+        <div>
+          <div class="combate-total-val lime" id="ct-vitorias">0</div>
+          <div class="combate-total-lbl">Vitórias</div>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Toques dados</label>
-          <input type="number" id="input-toques" class="input-center" placeholder="0" min="0" max="999">
+        <div>
+          <div class="combate-total-val coral" id="ct-derrotas">0</div>
+          <div class="combate-total-lbl">Derrotas</div>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Toques sofridos</label>
-          <input type="number" id="input-toques-sofridos" class="input-center" placeholder="0" min="0" max="999">
+        <div>
+          <div class="combate-total-val" id="ct-toques">0</div>
+          <div class="combate-total-lbl">Toques</div>
         </div>
       </div>
-    </div>
-
-    <!-- ADVERSÁRIO -->
-    <div class="form-card">
-      <div class="form-card-title">Adversário <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-secondary);">(opcional)</span></div>
-      <input type="text" id="input-adversario" placeholder="Ex: João, Pedro (nome ou alcunha)">
     </div>
 
     <!-- TÉCNICAS TRABALHADAS -->
@@ -1683,6 +1800,76 @@ function atualizarPreviewTecnicas() {
 }
 
 // ═══════════════════════════════════════════════════
+// MÓDULO DE COMBATES
+// ═══════════════════════════════════════════════════
+function adicionarCombate(adversario, resultado, toquesDados, toquesSofridos) {
+  const lista = document.getElementById('combates-list');
+  const row = document.createElement('div');
+  row.className = 'combate-row';
+
+  const resVal = resultado || 'v';
+  const resClass = resVal === 'v' ? 'resultado-v' : 'resultado-d';
+
+  row.innerHTML = `
+    <input type="text" placeholder="Adversário" value="${esc(adversario || '')}" oninput="calcularTotaisCombates()" style="width:100%;">
+    <select class="${resClass}" onchange="this.className=this.value==='v'?'resultado-v':'resultado-d';calcularTotaisCombates()">
+      <option value="v"${resVal==='v'?' selected':''}>V</option>
+      <option value="d"${resVal==='d'?' selected':''}>D</option>
+    </select>
+    <input type="number" placeholder="0" min="0" max="99" value="${toquesDados||''}" oninput="calcularTotaisCombates()" style="text-align:center;">
+    <input type="number" placeholder="0" min="0" max="99" value="${toquesSofridos||''}" oninput="calcularTotaisCombates()" style="text-align:center;">
+    <button class="btn-delete-combate" onclick="this.closest('.combate-row').remove();calcularTotaisCombates()">✕</button>
+  `;
+  lista.appendChild(row);
+  calcularTotaisCombates();
+  if (!adversario) row.querySelector('input[type="text"]').focus();
+}
+
+function calcularTotaisCombates() {
+  const rows = document.querySelectorAll('#combates-list .combate-row');
+  const totaisDiv = document.getElementById('combates-totais');
+
+  if (rows.length === 0) { totaisDiv.style.display = 'none'; return; }
+
+  let v = 0, d = 0, t = 0;
+  rows.forEach(r => {
+    const sel = r.querySelector('select');
+    const inputs = r.querySelectorAll('input[type="number"]');
+    if (sel?.value === 'v') v++; else d++;
+    t += parseInt(inputs[0]?.value) || 0;
+  });
+
+  document.getElementById('ct-combates').textContent = rows.length;
+  document.getElementById('ct-vitorias').textContent = v;
+  document.getElementById('ct-derrotas').textContent = d;
+  document.getElementById('ct-toques').textContent = t;
+  totaisDiv.style.display = 'grid';
+}
+
+function getCombatesData() {
+  const rows = document.querySelectorAll('#combates-list .combate-row');
+  return Array.from(rows).map(r => {
+    const inputs = r.querySelectorAll('input');
+    const sel = r.querySelector('select');
+    return {
+      adversario: inputs[0]?.value.trim() || '',
+      resultado: sel?.value || 'v',
+      toques_dados: parseInt(r.querySelectorAll('input[type="number"]')[0]?.value) || 0,
+      toques_sofridos: parseInt(r.querySelectorAll('input[type="number"]')[1]?.value) || 0
+    };
+  });
+}
+
+function getTotaisDeCombates(combates) {
+  return combates.reduce((acc, c) => {
+    if (c.resultado === 'v') acc.vitorias++; else acc.derrotas++;
+    acc.toques += c.toques_dados;
+    acc.toques_sofridos += c.toques_sofridos;
+    return acc;
+  }, { vitorias: 0, derrotas: 0, toques: 0, toques_sofridos: 0 });
+}
+
+// ═══════════════════════════════════════════════════
 // FORMULÁRIO — SELECÇÕES
 // ═══════════════════════════════════════════════════
 function selectCondition(val) {
@@ -1738,12 +1925,9 @@ async function guardarSessao() {
   const data = document.getElementById('input-data').value;
   const duracao = document.getElementById('input-duracao').value;
   const erros = document.getElementById('input-erros').value.trim();
-  const vitorias = parseInt(document.getElementById('input-vitorias').value) || 0;
-  const derrotas = parseInt(document.getElementById('input-derrotas').value) || 0;
-  const toques = parseInt(document.getElementById('input-toques').value) || 0;
-  const toquesSofridos = parseInt(document.getElementById('input-toques-sofridos').value) || 0;
   const notas = document.getElementById('input-notas').value.trim();
-  const adversario = document.getElementById('input-adversario').value.trim();
+  const combates = getCombatesData();
+  const totais = getTotaisDeCombates(combates);
 
   if (!data) return showMsg('msg-registar', 'error', 'Define a data da sessão.');
   if (condicaoSeleccionada === 0) return showMsg('msg-registar', 'error', 'Selecciona a condição física.');
@@ -1753,14 +1937,17 @@ async function guardarSessao() {
   const payload = {
     data_treino: data,
     duracao_min: duracao ? parseInt(duracao) : null,
-    vitorias, derrotas,
-    toques, toques_sofridos: toquesSofridos,
+    vitorias: totais.vitorias,
+    derrotas: totais.derrotas,
+    toques: totais.toques,
+    toques_sofridos: totais.toques_sofridos,
     competicao: eCompeticao,
     erros: erros || null,
     condicao_fisica: condicaoSeleccionada,
     notas: notas || null,
-    adversario: adversario || null,
-    tecnicas: tecnicasSeleccionadas.length > 0 ? tecnicasSeleccionadas : null
+    adversario: combates.length > 0 ? combates.map(c => c.adversario).filter(Boolean).join(', ') || null : null,
+    tecnicas: tecnicasSeleccionadas.length > 0 ? tecnicasSeleccionadas : null,
+    combates: combates.length > 0 ? combates : null
   };
 
   try {
@@ -1773,9 +1960,11 @@ async function guardarSessao() {
 }
 
 function resetForm() {
-  ['input-data','input-duracao','input-erros','input-vitorias','input-derrotas','input-toques','input-toques-sofridos','input-notas','input-adversario'].forEach(id => {
+  ['input-data','input-duracao','input-erros','input-notas'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('combates-list').innerHTML = '';
+  document.getElementById('combates-totais').style.display = 'none';
   condicaoSeleccionada = 0;
   eCompeticao = false;
   tecnicasSeleccionadas = [];
@@ -1815,7 +2004,6 @@ function buildCard(s) {
   const dataFormatada = formatarData(s.data_treino);
   const durStr = s.duracao_min ? s.duracao_min + ' min' : '';
   const cond = s.condicao_fisica || '—';
-  const totalCombates = (s.vitorias || 0) + (s.derrotas || 0);
   const badgeClass = s.competicao ? 'session-badge-comp' : 'session-badge-treino';
   const badgeText = s.competicao ? '🥇 Competição' : 'Treino';
 
@@ -1826,6 +2014,22 @@ function buildCard(s) {
   const tecnicasBlock = tecnicas.length > 0
     ? `<div class="session-erros"><strong>Técnicas trabalhadas</strong><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${tecnicas.map(t => `<span class="tecnica-tag">${esc(t)}</span>`).join('')}</div></div>`
     : '';
+
+  const combates = Array.isArray(s.combates) ? s.combates : (s.combates ? JSON.parse(s.combates) : []);
+  const combatesBlock = combates.length > 0 ? `
+    <div class="session-erros" style="padding:0;overflow:hidden;">
+      <strong style="display:block;padding:8px 12px 6px;">Combates</strong>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        ${combates.map(c => `
+          <tr style="border-top:1px solid var(--border);">
+            <td style="padding:6px 12px;font-weight:600;color:var(--text);">${esc(c.adversario || '—')}</td>
+            <td style="padding:6px 8px;font-weight:800;color:${c.resultado==='v'?'var(--lime-dark)':'var(--coral)'};">${c.resultado === 'v' ? 'V' : 'D'}</td>
+            <td style="padding:6px 8px;color:var(--text-secondary);">${c.toques_dados||0}–${c.toques_sofridos||0}</td>
+          </tr>`).join('')}
+      </table>
+    </div>` : '';
+
+  const totalCombates = combates.length || ((s.vitorias || 0) + (s.derrotas || 0));
 
   return `
     <div class="session-card-header">
@@ -1858,7 +2062,7 @@ function buildCard(s) {
         </div>
         ${s.duracao_min ? `<div class="stat-mini"><div class="stat-mini-label">Duração</div><div class="stat-mini-value">${s.duracao_min}m</div></div>` : ''}
       </div>
-      ${errosBlock}${notasBlock}${adversarioBlock}${tecnicasBlock}
+      ${combatesBlock}${errosBlock}${notasBlock}${tecnicasBlock}
     </div>`;
 }
 
