@@ -79,7 +79,7 @@
   /* ── NAV ── */
   nav {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     background: var(--card);
     border-bottom: 1px solid var(--border);
     padding: 0 8px;
@@ -471,6 +471,198 @@
   .btn-delete:hover { background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
 
   /* ── RESPONSIVO ── */
+  /* ── TEMPORIZADOR ── */
+  .timer-section { text-align: center; padding: 8px 0; }
+
+  .timer-mode-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .timer-mode-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .timer-mode-btn .mode-label { display: block; font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+  .timer-mode-btn .mode-sub { display: block; font-size: 11px; font-weight: 500; color: var(--text-secondary); }
+  .timer-mode-btn.active {
+    background: var(--coral);
+    border-color: var(--coral);
+  }
+  .timer-mode-btn.active .mode-label { color: var(--white); }
+  .timer-mode-btn.active .mode-sub { color: rgba(255,255,255,0.7); }
+  .timer-mode-btn:hover:not(.active) { border-color: var(--coral); }
+
+  .timer-face {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 32px 20px 28px;
+    margin-bottom: 16px;
+    transition: background 0.3s, border-color 0.3s;
+    position: relative;
+  }
+  .timer-face.running { border-color: var(--coral); box-shadow: 0 4px 24px rgba(232,65,42,0.15); }
+  .timer-face.finished { background: var(--coral); border-color: var(--coral); }
+  .timer-face.overtime { background: var(--lime-bg); border-color: var(--lime-dark); }
+
+  .timer-phase-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    min-height: 16px;
+    transition: color 0.3s;
+  }
+  .timer-face.finished .timer-phase-label { color: rgba(255,255,255,0.8); }
+  .timer-face.overtime .timer-phase-label { color: var(--lime-dark); }
+
+  .timer-display {
+    font-size: clamp(72px, 20vw, 110px);
+    font-weight: 800;
+    letter-spacing: -4px;
+    color: var(--text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+  }
+  .timer-face.finished .timer-display { color: var(--white); }
+  .timer-face.overtime .timer-display { color: var(--black); }
+  .timer-face.running .timer-display { color: var(--coral); }
+
+  .timer-ms {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0;
+    margin-left: 2px;
+    transition: color 0.3s;
+  }
+  .timer-face.running .timer-ms { color: var(--coral-light); }
+  .timer-face.finished .timer-ms { color: rgba(255,255,255,0.6); }
+
+  .timer-finish-msg {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    margin-top: 12px;
+    min-height: 20px;
+    display: none;
+  }
+  .timer-face.finished .timer-finish-msg { display: block; }
+  .timer-overtime-msg {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--lime-dark);
+    margin-top: 12px;
+    min-height: 20px;
+    display: none;
+  }
+  .timer-face.overtime .timer-overtime-msg { display: block; }
+
+  /* estado de descanso */
+  .timer-face.rest { background: #F0F4FF; border-color: #8899DD; }
+  .timer-face.rest .timer-phase-label { color: #5566AA; }
+  .timer-face.rest .timer-display { color: #3344AA; }
+  .timer-face.rest .timer-ms { color: #8899DD; }
+  .timer-rest-msg {
+    font-size: 13px;
+    font-weight: 700;
+    color: #5566AA;
+    margin-top: 12px;
+    min-height: 20px;
+    display: none;
+  }
+  .timer-face.rest .timer-rest-msg { display: block; }
+
+  .timer-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .btn-timer-start {
+    background: var(--coral);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .btn-timer-start:hover { background: var(--coral-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn-timer-start:active { transform: translateY(0); }
+  .btn-timer-reset {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-timer-reset:hover { border-color: var(--coral); color: var(--coral); background: var(--coral-bg); }
+
+  .timer-custom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .timer-custom-row label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .timer-custom-row input {
+    width: 70px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    padding: 6px 8px;
+  }
+  .timer-custom-row span {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .timer-info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow);
+  }
+  .timer-info-card strong { color: var(--text); font-weight: 700; }
+
   @media (max-width: 520px) {
     .metrics-grid { grid-template-columns: 1fr 1fr; }
     .two-col, .three-col, .four-col { grid-template-columns: 1fr 1fr; }
@@ -478,6 +670,7 @@
     .header-badge { display: none; }
     nav button { font-size: 10px; padding: 12px 4px; }
     .condition-btn small { display: none; }
+    .timer-display { font-size: clamp(64px, 18vw, 90px); letter-spacing: -2px; }
   }
   @media (max-width: 360px) {
     .metrics-grid { grid-template-columns: 1fr; }
@@ -735,6 +928,7 @@
   <button class="active" onclick="showSection('dashboard')">Dashboard</button>
   <button onclick="showSection('registar')">Registar</button>
   <button onclick="showSection('historial')">Historial</button>
+  <button onclick="showSection('timer')">Timer</button>
   <button onclick="showSection('plano')">AI Coach</button>
 </nav>
 
@@ -939,7 +1133,67 @@
 
 
   <!-- ══════════════════════════════════════════
-       SECÇÃO 3 — HISTORIAL
+       SECÇÃO 3 — TIMER
+  ══════════════════════════════════════════ -->
+  <div class="section" id="section-timer">
+    <div class="section-header">
+      <h2>Timer</h2>
+      <p>Cronómetro de assalto</p>
+    </div>
+
+    <!-- MODO -->
+    <div class="timer-mode-row">
+      <button class="timer-mode-btn active" id="btn-mode-comp" onclick="setTimerMode('comp')">
+        <span class="mode-label">🥇 Competição</span>
+        <span class="mode-sub">3 min + 1 min extra</span>
+      </button>
+      <button class="timer-mode-btn" id="btn-mode-treino" onclick="setTimerMode('treino')">
+        <span class="mode-label">🤺 Treino</span>
+        <span class="mode-sub">Tempo configurável</span>
+      </button>
+    </div>
+
+    <!-- TEMPO CUSTOMIZADO (só modo treino) -->
+    <div class="timer-custom-row" id="timer-custom-row" style="display:none;">
+      <label>Duração</label>
+      <input type="number" id="input-timer-min" value="5" min="1" max="60" onchange="resetTimer()">
+      <span>minutos</span>
+    </div>
+
+    <!-- DESCANSO (só modo competição) -->
+    <div class="timer-custom-row" id="timer-rest-row">
+      <label>Descanso entre assaltos</label>
+      <input type="number" id="input-rest-min" value="1" min="0" max="5" onchange="resetTimer()">
+      <span>minutos</span>
+    </div>
+
+    <!-- FACE DO TIMER -->
+    <div class="timer-face" id="timer-face">
+      <div class="timer-phase-label" id="timer-phase-label">Pronto</div>
+      <div>
+        <span class="timer-display" id="timer-display">3:00</span><span class="timer-ms" id="timer-ms">.0</span>
+      </div>
+      <div class="timer-finish-msg" id="timer-finish-msg">⏱ Tempo esgotado!</div>
+      <div class="timer-overtime-msg" id="timer-overtime-msg">⚡ Toque de ouro — quem tocar primeiro ganha!</div>
+      <div class="timer-rest-msg" id="timer-rest-msg">💤 Descansa. Próximo assalto em breve.</div>
+    </div>
+
+    <!-- CONTROLOS -->
+    <div class="timer-controls">
+      <button class="btn-timer-start" id="btn-timer-start" onclick="toggleTimer()">▶ Iniciar</button>
+      <button class="btn-timer-reset" onclick="resetTimer()">↺ Reset</button>
+    </div>
+
+    <!-- INFO -->
+    <div class="timer-info-card" id="timer-info-card">
+      <strong>Modo Competição:</strong> 3 minutos de tempo efectivo. Se empate ao fim → 1 minuto extra com toque de ouro. O relógio para sempre que pausas.<br>
+      <strong>Modo Treino:</strong> Define o tempo que quiseres. Útil para séries de exercícios em casa.
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECÇÃO 4 — HISTORIAL
   ══════════════════════════════════════════ -->
   <div class="section" id="section-historial">
     <div class="section-header">
@@ -1105,6 +1359,9 @@ function showSection(name) {
   if (name === 'dashboard') carregarDashboard();
   if (name === 'historial') carregarHistorial();
   if (name === 'plano') iniciarPlano();
+  if (name === 'timer') { if (!timerRunning) resetTimer(); }
+  // Pausa o timer ao sair da tab
+  if (name !== 'timer' && timerRunning) pauseTimer();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1703,6 +1960,178 @@ async function copiarContexto() {
   btn.disabled = false;
 }
 
+// ═══════════════════════════════════════════════════
+// TEMPORIZADOR
+// ═══════════════════════════════════════════════════
+let timerInterval = null;
+let timerMs = 0;          // ms restantes
+let timerRunning = false;
+let timerMode = 'comp';   // 'comp' | 'treino'
+let timerPhase = 'main';  // 'main' | 'overtime' | 'done'
+
+const COMP_MAIN_MS = 3 * 60 * 1000;
+const COMP_OVERTIME_MS = 1 * 60 * 1000;
+
+function getRestMs() {
+  const min = parseInt(document.getElementById('input-rest-min').value) || 0;
+  return min * 60 * 1000;
+}
+
+function setTimerMode(mode) {
+  if (timerRunning) return; // não muda durante contagem
+  timerMode = mode;
+  document.getElementById('btn-mode-comp').classList.toggle('active', mode === 'comp');
+  document.getElementById('btn-mode-treino').classList.toggle('active', mode === 'treino');
+  document.getElementById('timer-custom-row').style.display = mode === 'treino' ? 'flex' : 'none';
+  document.getElementById('timer-rest-row').style.display = mode === 'comp' ? 'flex' : 'none';
+  resetTimer();
+}
+
+function getInitialMs() {
+  if (timerMode === 'comp') return COMP_MAIN_MS;
+  const min = parseInt(document.getElementById('input-timer-min').value) || 5;
+  return min * 60 * 1000;
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerRunning = false;
+  timerPhase = 'main';
+  timerMs = getInitialMs();
+  atualizarFaceTimer();
+  document.getElementById('btn-timer-start').textContent = '▶ Iniciar';
+  const face = document.getElementById('timer-face');
+  face.classList.remove('running', 'finished', 'overtime', 'rest');
+  document.getElementById('timer-phase-label').textContent = 'Pronto';
+}
+
+function toggleTimer() {
+  if (timerPhase === 'done') { resetTimer(); return; }
+  if (timerPhase === 'rest') {
+    // Salta o descanso e vai directo ao próximo assalto
+    clearInterval(timerInterval);
+    timerInterval = null;
+    document.getElementById('timer-face').classList.remove('rest');
+    timerMs = COMP_MAIN_MS;
+    timerPhase = 'main';
+    atualizarFaceTimer();
+    startTimer();
+    return;
+  }
+  if (timerRunning) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  timerRunning = true;
+  document.getElementById('btn-timer-start').textContent = '⏸ Pausar';
+  document.getElementById('timer-face').classList.add('running');
+
+  const phaseLabel = document.getElementById('timer-phase-label');
+  if (timerPhase === 'main') {
+    phaseLabel.textContent = timerMode === 'comp' ? 'Assalto — Tempo regulamentar' : 'Assalto em curso';
+  } else if (timerPhase === 'overtime') {
+    phaseLabel.textContent = 'Tempo extra — Toque de ouro';
+  }
+
+  const tick = 100;
+  timerInterval = setInterval(() => {
+    timerMs -= tick;
+    if (timerMs <= 0) {
+      timerMs = 0;
+      atualizarFaceTimer();
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRunning = false;
+
+      if (timerMode === 'comp' && timerPhase === 'main') {
+        // Passa para overtime
+        timerPhase = 'overtime';
+        timerMs = COMP_OVERTIME_MS;
+        const face = document.getElementById('timer-face');
+        face.classList.remove('running');
+        face.classList.add('overtime');
+        document.getElementById('timer-phase-label').textContent = 'Empate! Iniciar tempo extra?';
+        document.getElementById('btn-timer-start').textContent = '▶ Tempo extra';
+        vibrar([200, 100, 200]);
+      } else {
+        // Fim do assalto
+        timerPhase = 'done';
+        const face = document.getElementById('timer-face');
+        face.classList.remove('running', 'overtime');
+        face.classList.add('finished');
+        document.getElementById('timer-phase-label').textContent = 'Fim do assalto';
+        document.getElementById('btn-timer-start').textContent = '↺ Recomeçar';
+        vibrar([300, 100, 300, 100, 600]);
+
+        // Descanso automático (só modo comp, se tempo > 0)
+        const restMs = getRestMs();
+        if (timerMode === 'comp' && restMs > 0) {
+          setTimeout(() => {
+            timerPhase = 'rest';
+            timerMs = restMs;
+            face.classList.remove('finished');
+            face.classList.add('rest');
+            document.getElementById('timer-phase-label').textContent = 'Descanso';
+            document.getElementById('btn-timer-start').textContent = '▶ Próximo assalto';
+            atualizarFaceTimer();
+            // Contagem regressiva do descanso
+            timerInterval = setInterval(() => {
+              timerMs -= 100;
+              if (timerMs <= 0) {
+                timerMs = 0;
+                atualizarFaceTimer();
+                clearInterval(timerInterval);
+                timerInterval = null;
+                // Pronto para próximo assalto
+                face.classList.remove('rest');
+                timerMs = COMP_MAIN_MS;
+                timerPhase = 'main';
+                atualizarFaceTimer();
+                document.getElementById('timer-phase-label').textContent = 'Pronto para o próximo assalto';
+                document.getElementById('btn-timer-start').textContent = '▶ Iniciar';
+                vibrar([200, 100, 200]);
+              } else {
+                atualizarFaceTimer();
+              }
+            }, 100);
+          }, 800); // pequeno delay antes de arrancar o descanso
+        }
+      }
+      return;
+    }
+    atualizarFaceTimer();
+  }, tick);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerRunning = false;
+  document.getElementById('btn-timer-start').textContent = '▶ Retomar';
+  document.getElementById('timer-face').classList.remove('running');
+  const label = timerPhase === 'overtime' ? 'Pausado — Tempo extra' : timerPhase === 'rest' ? 'Descanso pausado' : 'Pausado';
+  document.getElementById('timer-phase-label').textContent = label;
+}
+
+function atualizarFaceTimer() {
+  const totalSeg = Math.ceil(timerMs / 1000);
+  const min = Math.floor(totalSeg / 60);
+  const seg = totalSeg % 60;
+  const dec = Math.floor((timerMs % 1000) / 100);
+  document.getElementById('timer-display').textContent = `${min}:${String(seg).padStart(2,'0')}`;
+  document.getElementById('timer-ms').textContent = `.${dec}`;
+}
+
+function vibrar(pattern) {
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
 // XSS — SANITIZAÇÃO (nunca remover)
 function esc(str) {
   if (str == null) return '';
