@@ -486,6 +486,235 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  /* ── GRÁFICO DE EVOLUÇÃO ── */
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+  .chart-card-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .chart-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .chart-wrap svg { display: block; }
+  .chart-empty {
+    text-align: center;
+    padding: 28px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ── ERROS RECORRENTES ── */
+  .erros-recorrentes-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .erros-recorrentes-card .chart-card-title { margin-bottom: 4px; }
+  .erro-bar-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .erro-bar-row:last-child { margin-bottom: 0; }
+  .erro-bar-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .erro-bar-track {
+    background: var(--bg);
+    border-radius: 4px;
+    height: 6px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .erro-bar-fill {
+    background: var(--coral);
+    border-radius: 4px;
+    height: 100%;
+    transition: width 0.4s ease;
+  }
+  .erro-bar-count {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--coral);
+    min-width: 20px;
+    text-align: right;
+  }
+
+  /* ── MODAL DE TÉCNICAS ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--card);
+    border-radius: var(--radius) var(--radius) 0 0;
+    width: 100%;
+    max-width: 740px;
+    padding: 20px 20px 32px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.22s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .modal-header h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+  .modal-close {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
+  .modal-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-secondary);
+    margin: 14px 0 8px;
+  }
+  .modal-group-label:first-of-type { margin-top: 0; }
+  .tecnicas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7px;
+  }
+  .tecnica-pill {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .tecnica-pill .pt { display: block; }
+  .tecnica-pill .en { font-size: 10px; font-weight: 500; color: var(--text-secondary); margin-top: 1px; display: block; }
+  .tecnica-pill.selected {
+    background: var(--lime-bg);
+    border-color: var(--lime-dark);
+    color: var(--black);
+  }
+  .tecnica-pill.selected .en { color: var(--lime-dark); }
+  .tecnica-pill:hover:not(.selected) { border-color: var(--coral); background: var(--coral-bg); }
+  .tecnicas-selected-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 12px;
+    min-height: 28px;
+  }
+  .tecnica-tag {
+    background: var(--lime);
+    color: var(--black);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+  }
+  .modal-confirm {
+    margin-top: 16px;
+    background: var(--coral);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .modal-confirm:hover { background: var(--coral-light); }
+
+  /* botão de abertura do modal de técnicas */
+  .btn-tecnicas {
+    background: var(--bg);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 11px 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-tecnicas:hover { border-color: var(--coral); color: var(--coral); background: var(--coral-bg); }
+  .btn-tecnicas.has-items { border-style: solid; border-color: var(--lime-dark); background: var(--lime-bg); color: var(--black); }
+  .tecnicas-preview {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.5;
+    min-height: 0;
+  }
+  .tecnicas-preview.has-items { color: var(--lime-dark); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -588,6 +817,21 @@
       </div>
     </div>
 
+      <!-- GRÁFICO DE EVOLUÇÃO -->
+      <div id="dashboard-grafico" class="chart-card" style="display:none;">
+        <div class="chart-card-title">Evolução da taxa de vitória</div>
+        <div class="chart-card-sub">Semana a semana — % de combates ganhos</div>
+        <div class="chart-wrap" id="grafico-wrap"></div>
+      </div>
+
+      <!-- ERROS RECORRENTES -->
+      <div id="dashboard-erros-recorrentes" class="erros-recorrentes-card" style="display:none;">
+        <div class="chart-card-title">Erros mais recorrentes</div>
+        <div class="chart-card-sub" id="erros-recorrentes-sub">Período seleccionado</div>
+        <div id="erros-recorrentes-list"></div>
+      </div>
+    </div>
+
     <div id="dashboard-empty" style="display:none;" class="empty-state">
       <h3>Sem dados</h3>
       <p>Nenhuma sessão registada neste período.<br>Começa por registar um treino.</p>
@@ -649,6 +893,21 @@
           <input type="number" id="input-toques-sofridos" class="input-center" placeholder="0" min="0" max="999">
         </div>
       </div>
+    </div>
+
+    <!-- ADVERSÁRIO -->
+    <div class="form-card">
+      <div class="form-card-title">Adversário <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-secondary);">(opcional)</span></div>
+      <input type="text" id="input-adversario" placeholder="Ex: João, Pedro (nome ou alcunha)">
+    </div>
+
+    <!-- TÉCNICAS TRABALHADAS -->
+    <div class="form-card">
+      <div class="form-card-title">Técnicas trabalhadas <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text-secondary);">(opcional)</span></div>
+      <button class="btn-tecnicas" id="btn-abrir-tecnicas" onclick="abrirModalTecnicas()">
+        <span>＋</span> Seleccionar técnicas
+      </button>
+      <div class="tecnicas-preview" id="tecnicas-preview"></div>
     </div>
 
     <!-- ERROS RECORRENTES -->
@@ -738,6 +997,91 @@
 
 </main>
 
+<!-- ══════════════════════════════════════════
+     MODAL — TÉCNICAS
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-tecnicas" onclick="fecharModalTecnicasFora(event)">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3>Técnicas trabalhadas</h3>
+      <button class="modal-close" onclick="fecharModalTecnicas()">✕</button>
+    </div>
+
+    <div class="modal-group-label">Acções ofensivas</div>
+    <div class="tecnicas-grid">
+      <button class="tecnica-pill" data-tecnica="Investida" onclick="toggleTecnica(this)">
+        <span class="pt">Investida</span><span class="en">Flèche</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Ataque directo" onclick="toggleTecnica(this)">
+        <span class="pt">Ataque directo</span><span class="en">Direct attack</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Finta" onclick="toggleTecnica(this)">
+        <span class="pt">Finta</span><span class="en">Feint</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Ataque composto" onclick="toggleTecnica(this)">
+        <span class="pt">Ataque composto</span><span class="en">Compound attack</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Remise" onclick="toggleTecnica(this)">
+        <span class="pt">Remise</span><span class="en">Remise</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Passata sotto" onclick="toggleTecnica(this)">
+        <span class="pt">Passata sotto</span><span class="en">Passata sotto</span>
+      </button>
+    </div>
+
+    <div class="modal-group-label">Acções defensivas</div>
+    <div class="tecnicas-grid">
+      <button class="tecnica-pill" data-tecnica="Parade" onclick="toggleTecnica(this)">
+        <span class="pt">Parade</span><span class="en">Parry</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Resposta" onclick="toggleTecnica(this)">
+        <span class="pt">Resposta</span><span class="en">Riposte</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Esquiva" onclick="toggleTecnica(this)">
+        <span class="pt">Esquiva</span><span class="en">Evasion</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Contra-ataque" onclick="toggleTecnica(this)">
+        <span class="pt">Contra-ataque</span><span class="en">Counter-attack</span>
+      </button>
+    </div>
+
+    <div class="modal-group-label">Acções sobre a arma</div>
+    <div class="tecnicas-grid">
+      <button class="tecnica-pill" data-tecnica="Tomada de ferro" onclick="toggleTecnica(this)">
+        <span class="pt">Tomada de ferro</span><span class="en">Prise de fer</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Batimento" onclick="toggleTecnica(this)">
+        <span class="pt">Batimento</span><span class="en">Beat</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Pressão" onclick="toggleTecnica(this)">
+        <span class="pt">Pressão</span><span class="en">Pressure</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Envelopamento" onclick="toggleTecnica(this)">
+        <span class="pt">Envelopamento</span><span class="en">Envelopment</span>
+      </button>
+    </div>
+
+    <div class="modal-group-label">Deslocamentos e preparação</div>
+    <div class="tecnicas-grid">
+      <button class="tecnica-pill" data-tecnica="Trabalho de pés" onclick="toggleTecnica(this)">
+        <span class="pt">Trabalho de pés</span><span class="en">Footwork</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Provocação" onclick="toggleTecnica(this)">
+        <span class="pt">Provocação</span><span class="en">Invitation</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Preparação de ataque" onclick="toggleTecnica(this)">
+        <span class="pt">Preparação de ataque</span><span class="en">Attack preparation</span>
+      </button>
+      <button class="tecnica-pill" data-tecnica="Controlo de distância" onclick="toggleTecnica(this)">
+        <span class="pt">Controlo de distância</span><span class="en">Distance control</span>
+      </button>
+    </div>
+
+    <div class="tecnicas-selected-row" id="tecnicas-selected-row"></div>
+    <button class="modal-confirm" onclick="confirmarTecnicas()">Confirmar selecção</button>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════
 // ESTADO GLOBAL
@@ -745,6 +1089,7 @@
 let condicaoSeleccionada = 0;
 let eCompeticao = false;
 let periodoActual = 'semana';
+let tecnicasSeleccionadas = [];
 let ANTHROPIC_KEY = localStorage.getItem('epee_anthropic_key') || '';
 let SUPABASE_URL = localStorage.getItem('epee_supabase_url') || '';
 let SUPABASE_KEY = localStorage.getItem('epee_supabase_key') || '';
@@ -848,10 +1193,235 @@ async function carregarDashboard() {
     document.getElementById('dashboard-content').style.display = 'block';
     atualizarContador(data.length);
 
+    // Gráfico de evolução
+    renderizarGrafico(data);
+
+    // Erros recorrentes
+    renderizarErrosRecorrentes(data);
+
   } catch (err) {
     document.getElementById('dashboard-loading').style.display = 'none';
     document.getElementById('dashboard-empty').style.display = 'block';
     document.getElementById('dashboard-empty').innerHTML = `<h3>Erro</h3><p>${esc(err.message)}</p>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// GRÁFICO DE EVOLUÇÃO DA TAXA DE VITÓRIA
+// ═══════════════════════════════════════════════════
+function renderizarGrafico(sessoes) {
+  const graficoDiv = document.getElementById('dashboard-grafico');
+  const wrap = document.getElementById('grafico-wrap');
+
+  // Agrupar por semana ISO (YYYY-Www)
+  const porSemana = {};
+  sessoes.forEach(s => {
+    if (!s.data_treino) return;
+    const d = new Date(s.data_treino + 'T12:00:00');
+    const semana = getISOWeek(d);
+    if (!porSemana[semana]) porSemana[semana] = { v: 0, d: 0, label: semana };
+    porSemana[semana].v += (s.vitorias || 0);
+    porSemana[semana].d += (s.derrotas || 0);
+  });
+
+  const semanas = Object.keys(porSemana).sort();
+
+  if (semanas.length < 2) {
+    wrap.innerHTML = '<div class="chart-empty">Precisas de dados em pelo menos 2 semanas para ver a evolução.</div>';
+    graficoDiv.style.display = 'block';
+    return;
+  }
+
+  const pontos = semanas.map(s => {
+    const total = porSemana[s].v + porSemana[s].d;
+    return total > 0 ? Math.round((porSemana[s].v / total) * 100) : null;
+  });
+
+  // Dimensões
+  const W = Math.max(300, semanas.length * 60);
+  const H = 140;
+  const padL = 36, padR = 16, padT = 14, padB = 32;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  // Escala Y: 0–100
+  const yScale = v => padT + chartH - (v / 100) * chartH;
+  const xScale = i => padL + (i / (semanas.length - 1)) * chartW;
+
+  // Linhas de referência
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:${W}px;height:${H}px;">`;
+
+  // Grid horizontal a 25, 50, 75%
+  [25, 50, 75].forEach(pct => {
+    const y = yScale(pct);
+    svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#E5E0DC" stroke-width="1" stroke-dasharray="3,3"/>`;
+    svg += `<text x="${padL - 4}" y="${y + 4}" font-size="9" fill="#7A6F6C" text-anchor="end" font-family="Plus Jakarta Sans, sans-serif" font-weight="600">${pct}</text>`;
+  });
+  // Linha 50% mais marcada
+  const y50 = yScale(50);
+  svg += `<line x1="${padL}" y1="${y50}" x2="${W - padR}" y2="${y50}" stroke="#C8F000" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>`;
+
+  // Área preenchida
+  const ptsValidos = pontos.map((p, i) => p !== null ? { x: xScale(i), y: yScale(p) } : null);
+  const firstValid = ptsValidos.findIndex(p => p);
+  const lastValid = [...ptsValidos].reverse().findIndex(p => p);
+  const lastIdx = ptsValidos.length - 1 - lastValid;
+
+  if (firstValid !== -1) {
+    let areaPath = `M ${ptsValidos[firstValid].x} ${yScale(0)}`;
+    for (let i = firstValid; i <= lastIdx; i++) {
+      if (ptsValidos[i]) areaPath += ` L ${ptsValidos[i].x} ${ptsValidos[i].y}`;
+    }
+    areaPath += ` L ${ptsValidos[lastIdx].x} ${yScale(0)} Z`;
+    svg += `<path d="${areaPath}" fill="#E8412A" opacity="0.08"/>`;
+
+    // Linha
+    let linePath = '';
+    ptsValidos.forEach((p, i) => {
+      if (!p) return;
+      linePath += linePath === '' ? `M ${p.x} ${p.y}` : ` L ${p.x} ${p.y}`;
+    });
+    svg += `<path d="${linePath}" fill="none" stroke="#E8412A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // Pontos
+    ptsValidos.forEach((p, i) => {
+      if (!p) return;
+      svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#E8412A" stroke="#fff" stroke-width="2"/>`;
+      svg += `<text x="${p.x}" y="${p.y - 9}" font-size="9.5" fill="#E8412A" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-weight="800">${pontos[i]}%</text>`;
+    });
+  }
+
+  // Labels eixo X (semanas simplificadas: Sem N)
+  semanas.forEach((s, i) => {
+    const label = 'S' + s.split('-W')[1];
+    svg += `<text x="${xScale(i)}" y="${H - 6}" font-size="9" fill="#7A6F6C" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-weight="600">${esc(label)}</text>`;
+  });
+
+  svg += '</svg>';
+  wrap.innerHTML = svg;
+  graficoDiv.style.display = 'block';
+}
+
+function getISOWeek(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(week).padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════
+// ERROS RECORRENTES
+// ═══════════════════════════════════════════════════
+function renderizarErrosRecorrentes(sessoes) {
+  const errosDiv = document.getElementById('dashboard-erros-recorrentes');
+  const lista = document.getElementById('erros-recorrentes-list');
+
+  // Recolher todas as frases de erros
+  const frequencia = {};
+  sessoes.forEach(s => {
+    if (!s.erros) return;
+    // Split por ., \n, ;, e limpar
+    const frases = s.erros.split(/[.\n;]+/).map(f => f.trim()).filter(f => f.length > 4);
+    frases.forEach(frase => {
+      // Normalizar: minúsculas, sem espaços duplos
+      const norm = frase.toLowerCase().replace(/\s+/g, ' ').trim();
+      if (!norm) return;
+      // Agrupar frases similares (primeiros 30 chars como chave)
+      const chave = norm.slice(0, 40);
+      if (!frequencia[chave]) frequencia[chave] = { texto: frase.trim(), count: 0 };
+      frequencia[chave].count++;
+    });
+  });
+
+  const ordenados = Object.values(frequencia)
+    .filter(e => e.count >= 1)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6);
+
+  if (ordenados.length === 0) {
+    errosDiv.style.display = 'none';
+    return;
+  }
+
+  const maxCount = ordenados[0].count;
+  lista.innerHTML = ordenados.map(e => {
+    const pct = Math.round((e.count / maxCount) * 100);
+    const textoSeguro = esc(e.texto.charAt(0).toUpperCase() + e.texto.slice(1));
+    return `
+      <div class="erro-bar-row">
+        <div>
+          <div class="erro-bar-label">${textoSeguro}</div>
+          <div class="erro-bar-track"><div class="erro-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="erro-bar-count">${e.count}×</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('erros-recorrentes-sub').textContent =
+    `${sessoes.length} sessão${sessoes.length !== 1 ? 'ões' : ''} analisada${sessoes.length !== 1 ? 's' : ''}`;
+  errosDiv.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════
+// MODAL DE TÉCNICAS
+// ═══════════════════════════════════════════════════
+function abrirModalTecnicas() {
+  // Marcar pills já seleccionadas
+  document.querySelectorAll('.tecnica-pill').forEach(btn => {
+    const t = btn.dataset.tecnica;
+    btn.classList.toggle('selected', tecnicasSeleccionadas.includes(t));
+  });
+  atualizarSelectedRow();
+  document.getElementById('modal-tecnicas').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModalTecnicas() {
+  document.getElementById('modal-tecnicas').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function fecharModalTecnicasFora(e) {
+  if (e.target === document.getElementById('modal-tecnicas')) fecharModalTecnicas();
+}
+
+function toggleTecnica(btn) {
+  const t = btn.dataset.tecnica;
+  if (tecnicasSeleccionadas.includes(t)) {
+    tecnicasSeleccionadas = tecnicasSeleccionadas.filter(x => x !== t);
+    btn.classList.remove('selected');
+  } else {
+    tecnicasSeleccionadas.push(t);
+    btn.classList.add('selected');
+  }
+  atualizarSelectedRow();
+}
+
+function atualizarSelectedRow() {
+  const row = document.getElementById('tecnicas-selected-row');
+  row.innerHTML = tecnicasSeleccionadas.map(t => `<span class="tecnica-tag">${esc(t)}</span>`).join('');
+}
+
+function confirmarTecnicas() {
+  fecharModalTecnicas();
+  atualizarPreviewTecnicas();
+}
+
+function atualizarPreviewTecnicas() {
+  const btn = document.getElementById('btn-abrir-tecnicas');
+  const preview = document.getElementById('tecnicas-preview');
+  if (tecnicasSeleccionadas.length === 0) {
+    btn.classList.remove('has-items');
+    btn.innerHTML = '<span>＋</span> Seleccionar técnicas';
+    preview.textContent = '';
+    preview.className = 'tecnicas-preview';
+  } else {
+    btn.classList.add('has-items');
+    btn.innerHTML = `<span>✦</span> ${tecnicasSeleccionadas.length} técnica${tecnicasSeleccionadas.length !== 1 ? 's' : ''} seleccionada${tecnicasSeleccionadas.length !== 1 ? 's' : ''}`;
+    preview.textContent = tecnicasSeleccionadas.map(t => esc(t)).join(' · ');
+    preview.className = 'tecnicas-preview has-items';
   }
 }
 
@@ -916,6 +1486,7 @@ async function guardarSessao() {
   const toques = parseInt(document.getElementById('input-toques').value) || 0;
   const toquesSofridos = parseInt(document.getElementById('input-toques-sofridos').value) || 0;
   const notas = document.getElementById('input-notas').value.trim();
+  const adversario = document.getElementById('input-adversario').value.trim();
 
   if (!data) return showMsg('msg-registar', 'error', 'Define a data da sessão.');
   if (condicaoSeleccionada === 0) return showMsg('msg-registar', 'error', 'Selecciona a condição física.');
@@ -930,7 +1501,9 @@ async function guardarSessao() {
     competicao: eCompeticao,
     erros: erros || null,
     condicao_fisica: condicaoSeleccionada,
-    notas: notas || null
+    notas: notas || null,
+    adversario: adversario || null,
+    tecnicas: tecnicasSeleccionadas.length > 0 ? tecnicasSeleccionadas : null
   };
 
   try {
@@ -943,13 +1516,15 @@ async function guardarSessao() {
 }
 
 function resetForm() {
-  ['input-data','input-duracao','input-erros','input-vitorias','input-derrotas','input-toques','input-toques-sofridos','input-notas'].forEach(id => {
+  ['input-data','input-duracao','input-erros','input-vitorias','input-derrotas','input-toques','input-toques-sofridos','input-notas','input-adversario'].forEach(id => {
     document.getElementById(id).value = '';
   });
   condicaoSeleccionada = 0;
   eCompeticao = false;
+  tecnicasSeleccionadas = [];
   document.querySelectorAll('.condition-btn').forEach(b => b.classList.remove('selected'));
   selectCompeticao(false);
+  atualizarPreviewTecnicas();
 }
 
 // ═══════════════════════════════════════════════════
@@ -989,6 +1564,11 @@ function buildCard(s) {
 
   const errosBlock = s.erros ? `<div class="session-erros"><strong>Erros / A melhorar</strong>${esc(s.erros)}</div>` : '';
   const notasBlock = s.notas ? `<div class="session-erros"><strong>Notas</strong>${esc(s.notas)}</div>` : '';
+  const adversarioBlock = s.adversario ? `<div class="session-erros"><strong>Adversário</strong>${esc(s.adversario)}</div>` : '';
+  const tecnicas = Array.isArray(s.tecnicas) ? s.tecnicas : (s.tecnicas ? JSON.parse(s.tecnicas) : []);
+  const tecnicasBlock = tecnicas.length > 0
+    ? `<div class="session-erros"><strong>Técnicas trabalhadas</strong><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${tecnicas.map(t => `<span class="tecnica-tag">${esc(t)}</span>`).join('')}</div></div>`
+    : '';
 
   return `
     <div class="session-card-header">
@@ -1021,7 +1601,7 @@ function buildCard(s) {
         </div>
         ${s.duracao_min ? `<div class="stat-mini"><div class="stat-mini-label">Duração</div><div class="stat-mini-value">${s.duracao_min}m</div></div>` : ''}
       </div>
-      ${errosBlock}${notasBlock}
+      ${errosBlock}${notasBlock}${adversarioBlock}${tecnicasBlock}
     </div>`;
 }
 
@@ -1106,7 +1686,8 @@ async function copiarContexto() {
       btn.disabled = false; return;
     }
     const contexto = ultimas.map((s, i) => {
-      return `SESSÃO ${i + 1} (${s.data_treino}):\n- Duração: ${s.duracao_min ? s.duracao_min + ' min' : 'não registada'}\n- Combates: ${(s.vitorias||0) + (s.derrotas||0)} (${s.vitorias||0}V / ${s.derrotas||0}D)\n- Toques dados: ${s.toques||0} | Toques sofridos: ${s.toques_sofridos||0}\n- Competição: ${s.competicao ? 'Sim' : 'Não'}\n- Erros / a melhorar: ${s.erros || 'não registado'}\n- Condição física: ${s.condicao_fisica||'—'}/5\n- Notas: ${s.notas || 'sem notas'}`;
+      const tecnicas = Array.isArray(s.tecnicas) ? s.tecnicas : (s.tecnicas ? JSON.parse(s.tecnicas) : []);
+      return `SESSÃO ${i + 1} (${s.data_treino}):\n- Duração: ${s.duracao_min ? s.duracao_min + ' min' : 'não registada'}\n- Combates: ${(s.vitorias||0) + (s.derrotas||0)} (${s.vitorias||0}V / ${s.derrotas||0}D)\n- Toques dados: ${s.toques||0} | Toques sofridos: ${s.toques_sofridos||0}\n- Competição: ${s.competicao ? 'Sim' : 'Não'}\n- Adversário: ${s.adversario || 'não registado'}\n- Técnicas trabalhadas: ${tecnicas.length > 0 ? tecnicas.join(', ') : 'não registado'}\n- Erros / a melhorar: ${s.erros || 'não registado'}\n- Condição física: ${s.condicao_fisica||'—'}/5\n- Notas: ${s.notas || 'sem notas'}`;
     }).join('\n\n');
 
     const textoCopiar = `És um treinador de esgrima especializado em espada (épée). Analisa as minhas sessões de treino abaixo e cria um plano de exercícios para eu fazer sozinho em casa, focado nos erros recorrentes. O plano deve ser prático, detalhado e em português europeu, com 4 a 6 exercícios com nome, objectivo, descrição e repetições/duração.\n\n${contexto}`;
