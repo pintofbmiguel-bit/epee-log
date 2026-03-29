@@ -1,0 +1,22 @@
+{
+  "name": "Épée Log",
+  "short_name": "Épée Log",
+  "description": "Diário de treino de esgrima",
+  "start_url": "/epee-log/",
+  "display": "standalone",
+  "background_color": "#F2F0ED",
+  "theme_color": "#E8412A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
